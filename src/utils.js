@@ -969,6 +969,19 @@ function prepare_and_run_distance(m1,m2){
     return  distance
 }
 
-module.exports =  {prepare_and_run_distance, build_table, reroot_hierarchy, screen_shot, parse_nhx, save_file_as, compute_RF_Euc, get_intersection_leaves, filter_leaves_hierarchy, remove_duplicated_and_unnamed_leaves_hierarchy};
+function check_if_color(query){
+    var accepted_spelling = ['color', 'colour'];
+
+    if (accepted_spelling.includes(query.toLowerCase())){
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+
+
+module.exports =  {check_if_color, prepare_and_run_distance, build_table, reroot_hierarchy, screen_shot, parse_nhx, save_file_as, compute_RF_Euc, get_intersection_leaves, filter_leaves_hierarchy, remove_duplicated_and_unnamed_leaves_hierarchy};
 
 

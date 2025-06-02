@@ -2,6 +2,7 @@ import * as fs from 'file-saver';
 import * as d3 from 'd3';
 import * as bootstrap from 'bootstrap';
 import * as d3_chrome from 'd3-scale-chromatic';
+import {check_if_color} from "./utils";
 
 // D3 viewer Interface that render UI elements(buttons, slider, menu)
 export default class Interface {
@@ -824,7 +825,7 @@ export default class Interface {
                     </div>
                     
                     <div class="form-check" style="margin-left: 24px">
-                        <input class="form-check-input"  name="flexRadioDefault" type="radio" value="color" id="RADIO_3">
+                        <input class="form-check-input"  name="flexRadioDefault" type="radio" value="color" id="RADIO_3" ATTR_COLOR>
                             <label class="form-check-label" for="RADIO_3">
                                 Color
                             </label>
@@ -851,16 +852,21 @@ export default class Interface {
                         rad = rad.replace('RADIO_3',  that.container_object.uid + 'mapping_header_radiotree_adder_3'  + '__' + key )
 
 
-
-                        if (numerisator[key] == 'num'){
+                        if (numerisator[key] == 'num') {
                             rad = rad.replace('ATTR_NUM', 'checked')
                             rad = rad.replace('ATTR_CAT', '')
+                            rad = rad.replace('ATTR_COLOR', '')
                         }
-                        else{
+                        if (check_if_color(key)) {
+                            rad = rad.replace('ATTR_NUM', '')
+                            rad = rad.replace('ATTR_CAT', '')
+                            rad = rad.replace('ATTR_COLOR', 'checked')
+                        }
+                        else {
                             rad = rad.replace('ATTR_NUM', 'disabled')
                             rad = rad.replace('ATTR_CAT', 'checked')
+                            rad = rad.replace('ATTR_COLOR', '')
                         }
-
 
 
                         radio_container.insertAdjacentHTML('beforeend',rad)
@@ -1848,7 +1854,7 @@ export default class Interface {
                     </div>
                     
                     <div class="form-check" style="margin-left: 24px">
-                        <input class="form-check-input"  name="flexRadioDefault" type="radio" value="color" id="RADIO_3">
+                        <input class="form-check-input"  name="flexRadioDefault" type="radio" value="color" id="RADIO_3" ATTR_COLOR>
                             <label class="form-check-label" for="RADIO_3">
                                 Color
                             </label>
@@ -1875,14 +1881,20 @@ export default class Interface {
                         rad = rad.replace('RADIO_3',  that.container_object.uid + 'mapping_header_radio3'  + '__' + key )
 
 
-
-                        if (numerisator[key] == 'num'){
+                        if (numerisator[key] == 'num') {
                             rad = rad.replace('ATTR_NUM', 'checked')
                             rad = rad.replace('ATTR_CAT', '')
+                            rad = rad.replace('ATTR_COLOR', '')
                         }
-                        else{
+                        if (check_if_color(numerisator[key])) {
+                            rad = rad.replace('ATTR_NUM', '')
+                            rad = rad.replace('ATTR_CAT', '')
+                            rad = rad.replace('ATTR_COLOR', 'checked')
+                        }
+                        else {
                             rad = rad.replace('ATTR_NUM', 'disabled')
                             rad = rad.replace('ATTR_CAT', 'checked')
+                            rad = rad.replace('ATTR_COLOR', '')
                         }
 
 

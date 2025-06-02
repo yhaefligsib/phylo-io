@@ -933,6 +933,9 @@ export default class Viewer {
                 if (this.model.settings.extended_data_type[acc] == 'cat') {
                     return this.model.settings.colorScale['node'].get_color(v)
                 }
+                else if (this.model.settings.extended_data_type[acc] == 'color') {
+                    return v
+                }
                 else {
                     return this.model.settings.colorScale['node'](v)
                 }
