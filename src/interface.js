@@ -422,25 +422,27 @@ export default class Interface {
                 
                 <br>
                 
+                
+                
                 <div class="card">
-                
-                  <div class="card-body">
+    <div class="card-body">
+        <div style="cursor: pointer;" id="toggleStep3">
+            <h5>
+                <b>Step 3 (Optional): Add a mapping file</b>
+                <a href="#" id="menu_help_add_tree">
+                    <i class="bi-question-circle"></i>
+                </a>
+                <i class="bi-caret-down float-end" id="caretStep3"></i>
+                <small class="float-end" id="expandStep3">Expand</small>
+            </h5>
+        </div>
+        <br>
+        <div id="collapseStep3" style="display: none;">
+            STEP3__
+        </div>
+    </div>
+</div>
                   
-                  <h5> <b>Step 3 (Optional) : Add a mapping file </b> 
-                  <a href="#" id='menu_help_add_tree' >
-                <i class="bi-question-circle"></i>
-            </a> </h5>
-                  
-                  <br>
-                  
-                  STEP3__
-                  
-       
-                </div>
-
-         
-                </div>
-                
                 <br>
                  
                  <div style="margin: auto; width: fit-content;">
@@ -452,28 +454,29 @@ export default class Interface {
                   </div>
                 
         </div>
-                
+        
+                    
                 
         `
 
 
     }
 
-    add_data_icon(){
+    add_data_icon() {
 
         this.container_d3.select("#exampleModal" + this.container_object.uid).remove()
 
         var b = this.top_left.append('button')
             .attr('class', '  dashed_button')
-            .attr('id', 'buttonmodal_' + this.container_object.div_id )
+            .attr('id', 'buttonmodal_' + this.container_object.div_id)
             .attr('data-bs-toggle', 'modal')
             .attr('data-bs-target', '#exampleModal' + this.container_object.uid)
             .attr('data-bs-placement', 'right')
             .attr('title', 'Add a new tree')
             .append("div")
-            .attr("class","label")
+            .attr("class", "label")
 
-            b.html("  <i class='bi bi-plus' style='color:#888'></i> Add tree")
+        b.html("  <i class='bi bi-plus' style='color:#888'></i> Add tree")
 
         let mod_html = this.get_modal_template()
 
@@ -481,7 +484,6 @@ export default class Interface {
         mod_html = mod_html.replace('TITLE_', 'Upload your tree')
         mod_html = mod_html.replace('SUB_TITLE_', '')
         mod_html = mod_html.replace('STEP3__', this.get_modal_meta_corpus())
-
 
 
         mod_html = mod_html.replace('exampleFormControlTextarea1s', 'exampleFormControlTextarea1s' + this.container_object.uid)
@@ -507,32 +509,56 @@ export default class Interface {
         mod_html = mod_html.replace('mapping_check_leaf', 'tree_adder_mapping_check_leaf' + this.container_object.uid)
         mod_html = mod_html.replace('mapping_apply_to_all', 'tree_adder_mapping_apply_to_all' + this.container_object.uid)
 
+
         mod_html = mod_html.replaceAll('add_mapping_ref_select', 'add_mapping_ref_select' + this.container_object.uid)
 
-        document.getElementById(this.container_object.div_id).insertAdjacentHTML('afterend',mod_html)
+        mod_html = mod_html.replace('collapseStep3', 'collapse3' + this.container_object.uid)
+        mod_html = mod_html.replace('toggleStep3', 'toggle3' + this.container_object.uid)
+        mod_html = mod_html.replace('caretStep3', 'caret3' + this.container_object.uid)
+        mod_html = mod_html.replace('expandStep3', 'expand3' + this.container_object.uid)
+
+
+        document.getElementById(this.container_object.div_id).insertAdjacentHTML('afterend', mod_html)
+
+        // Add code for the toggle functionality
 
 
 
-        var modmod = document.getElementById('exampleModal'+ this.container_object.uid);
+        const toggleElement = document.getElementById('toggle3' + this.container_object.uid);
+        const contentElement = document.getElementById('collapse3' + this.container_object.uid);
+        const caretElement = document.getElementById('caret3'  + this.container_object.uid);
+        const expandTextElement = document.getElementById('expand3' + this.container_object.uid);
 
-        var thaty  = this
+        toggleElement.addEventListener('click', () => {
+            console.log('Toggle clicked');
+            const isHidden = contentElement.style.display === 'none';
+            contentElement.style.display = isHidden ? 'block' : 'none';
+            caretElement.className = isHidden ? 'bi-caret-up float-end' : 'bi-caret-down float-end';
+            expandTextElement.textContent = isHidden ? 'Collapse' : 'Expand';
+        });
 
-        const add_tree_helpers = function(container_object, str, format, mapping){
+
+
+        var modmod = document.getElementById('exampleModal' + this.container_object.uid);
+
+        var thaty = this
+
+        const add_tree_helpers = function (container_object, str, format, mapping) {
 
             var mapping = (typeof mapping == 'undefined') ? false : mapping;
 
-            container_object.add_tree(str, {'data_type':format})
-            container_object.current_model =  container_object.models.length-1
+            container_object.add_tree(str, {'data_type': format})
+            container_object.current_model = container_object.models.length - 1
 
             // check if internal_for_branch is checked or not and setup default_internal_label_is_for_branch
 
-            if (document.getElementById('internal_for_branch' + container_object.uid).checked){
+            if (document.getElementById('internal_for_branch' + container_object.uid).checked) {
                 container_object.models[container_object.current_model].settings.edge_related_data.push('Data');
             }
 
-            if (mapping !== false){
+            if (mapping !== false) {
 
-                if (mapping.parameters.apply_to_all){
+                if (mapping.parameters.apply_to_all) {
 
                     // apply add_meta_leaves to all models in the container
                     container_object.models.forEach((model) => {
@@ -540,18 +566,17 @@ export default class Interface {
                         model.settings.use_meta_for_leaf = mapping.parameters.use_meta_for_leaf
                         model.settings.use_meta_for_node = mapping.parameters.use_meta_for_node
 
-                        if (mapping.parameters.use_meta_for_leaf){
+                        if (mapping.parameters.use_meta_for_leaf) {
                             model.add_meta_leaves(mapping.meta, mapping.parameters.headers, container_object.api, mapping.parameters.reference)
                         }
-                        if (mapping.parameters.use_meta_for_node){
+                        if (mapping.parameters.use_meta_for_node) {
                             model.add_meta_nodes(mapping.meta, mapping.parameters.headers, container_object.api, mapping.parameters.reference)
                         }
 
 
                     })
 
-                }
-                else {
+                } else {
 
                     let moddy = container_object.models[container_object.current_model]
 
@@ -559,11 +584,11 @@ export default class Interface {
                     moddy.settings.use_meta_for_node = mapping.parameters.use_meta_for_node
 
 
-                    if (moddy.settings.use_meta_for_leaf){
+                    if (moddy.settings.use_meta_for_leaf) {
                         moddy.add_meta_leaves(mapping.meta, mapping.parameters.headers, container_object.api, mapping.parameters.reference)
                     }
 
-                    if (moddy.settings.use_meta_for_node){
+                    if (moddy.settings.use_meta_for_node) {
                         moddy.add_meta_nodes(mapping.meta, mapping.parameters.headers, container_object.api, mapping.parameters.reference)
                     }
 
@@ -574,7 +599,7 @@ export default class Interface {
             }
 
 
-            document.querySelector('#exampleModal'+ container_object.uid).style.display =  'none'
+            document.querySelector('#exampleModal' + container_object.uid).style.display = 'none'
             document.querySelectorAll('.modal-backdrop').forEach(elem => {
                 elem.parentNode.removeChild(elem);
             });
@@ -584,17 +609,17 @@ export default class Interface {
             container_object.viewer.render(container_object.viewer.hierarchy);
             //container_object.viewer.update_collapse_level(container_object.models[container_object.current_model].settings.collapse_level)
 
-            if (mapping){
+            if (mapping) {
                 thaty.open_color_settings()
             }
 
 
-            if (thaty.api.settings.compute_distance && thaty.api.bound_container.includes(thaty)){
+            if (thaty.api.settings.compute_distance && thaty.api.bound_container.includes(thaty)) {
                 thaty.api.send_worker_distance()
             }
         }
 
-        const add_data_from_modal =  (format) => {
+        const add_data_from_modal = (format) => {
 
             // mapping information
             var mapping_file = document.getElementById('tree_adder_modal_add_mapping_file_input' + that.container_object.uid).files[0];
@@ -602,7 +627,7 @@ export default class Interface {
 
             let s = document.getElementById("exampleFormControlTextarea1s" + this.container_object.uid).value
 
-            if (s.length > 0){
+            if (s.length > 0) {
 
                 if (mapping_file) {
 
@@ -616,30 +641,29 @@ export default class Interface {
                         var meta = []
                         var ref_id = parameters.reference
 
-                        if (mapping_file.name.split('.').pop() == 'tsv'){
-                            d3.tsvParse(event.target.result, (d) => {meta[d[ref_id]] = d});
+                        if (mapping_file.name.split('.').pop() == 'tsv') {
+                            d3.tsvParse(event.target.result, (d) => {
+                                meta[d[ref_id]] = d
+                            });
+                        } else {
+                            d3.csvParse(event.target.result, (d) => {
+                                meta[d[ref_id]] = d
+                            });
                         }
-                        else{
-                            d3.csvParse(event.target.result, (d) => {meta[d[ref_id]] = d});
-                        }
-
 
 
                         add_tree_helpers(this.container_object, s, format, {'meta': meta, 'parameters': parameters})
                         return
 
 
-
                     });
                     reader.readAsText(mapping_file);
 
 
-                }
-                else {
+                } else {
                     add_tree_helpers(this.container_object, s, format)
-                    return}
-
-
+                    return
+                }
 
 
             }
@@ -649,7 +673,7 @@ export default class Interface {
             if (file) {
                 var reader = new FileReader();
                 reader.readAsText(file, "UTF-8");
-                reader.onload =  (evt) => {
+                reader.onload = (evt) => {
 
                     if (mapping_file) {
                         var parameters = that.get_mapping_parameter_from_UI(true)
@@ -663,26 +687,31 @@ export default class Interface {
                             var ref_id = parameters.reference
 
 
-                            if (mapping_file.name.split('.').pop() == 'tsv'){
-                                d3.tsvParse(event.target.result, (d) => {meta[d[ref_id]] = d});
-                            }
-                            else{
-                                d3.csvParse(event.target.result, (d) => {meta[d[ref_id]] = d});
+                            if (mapping_file.name.split('.').pop() == 'tsv') {
+                                d3.tsvParse(event.target.result, (d) => {
+                                    meta[d[ref_id]] = d
+                                });
+                            } else {
+                                d3.csvParse(event.target.result, (d) => {
+                                    meta[d[ref_id]] = d
+                                });
                             }
 
-                            add_tree_helpers(this.container_object, evt.target.result, format, {'meta': meta, 'parameters': parameters})
+                            add_tree_helpers(this.container_object, evt.target.result, format, {
+                                'meta': meta,
+                                'parameters': parameters
+                            })
                             return
-
 
 
                         });
                         reader.readAsText(mapping_file);
 
 
-                    }
-                    else {
+                    } else {
                         add_tree_helpers(this.container_object, evt.target.result, format)
-                        return}
+                        return
+                    }
 
 
                 }
@@ -690,7 +719,6 @@ export default class Interface {
                     console.log("error reading file")
                 }
             }
-
 
 
         }
@@ -704,35 +732,34 @@ export default class Interface {
         }
 
         modmod.getElementsByClassName('t1')[0].onclick = () => {
-            document.getElementById("exampleFormControlTextarea1s"+ this.container_object.uid).value = this.examples.small1
+            document.getElementById("exampleFormControlTextarea1s" + this.container_object.uid).value = this.examples.small1
             document.getElementById('add_tree_str_select' + this.container_object.uid).value = 'newick'
         };
 
         modmod.getElementsByClassName('t1')[0].onclick = () => {
-            document.getElementById("exampleFormControlTextarea1s"+ this.container_object.uid).value = this.examples.small1
+            document.getElementById("exampleFormControlTextarea1s" + this.container_object.uid).value = this.examples.small1
             document.getElementById('add_tree_str_select' + this.container_object.uid).value = 'newick'
         };
 
         modmod.getElementsByClassName('t2')[0].onclick = () => {
-            document.getElementById("exampleFormControlTextarea1s"+ this.container_object.uid).value = this.examples.small2
+            document.getElementById("exampleFormControlTextarea1s" + this.container_object.uid).value = this.examples.small2
             document.getElementById('add_tree_str_select' + this.container_object.uid).value = 'newick'
         };
 
         modmod.getElementsByClassName('tbig')[0].onclick = () => {
-            document.getElementById("exampleFormControlTextarea1s"+ this.container_object.uid).value = this.examples.big
+            document.getElementById("exampleFormControlTextarea1s" + this.container_object.uid).value = this.examples.big
             document.getElementById('add_tree_str_select' + this.container_object.uid).value = 'newick'
         };
 
         modmod.getElementsByClassName('nhx_ex')[0].onclick = () => {
-            document.getElementById("exampleFormControlTextarea1s"+ this.container_object.uid).value = this.examples.nhx
+            document.getElementById("exampleFormControlTextarea1s" + this.container_object.uid).value = this.examples.nhx
             document.getElementById('add_tree_str_select' + this.container_object.uid).value = 'nhx'
         };
 
 
         // META DATA UPLOADER
-        document.getElementById('upload_mapping_validation'+ this.container_object.uid).style.display = 'none'
-        document.getElementById('upload_mapping_close'+ this.container_object.uid).style.display = 'none'
-
+        document.getElementById('upload_mapping_validation' + this.container_object.uid).style.display = 'none'
+        document.getElementById('upload_mapping_close' + this.container_object.uid).style.display = 'none'
 
 
         var x = modmod.getElementsByClassName('card')
@@ -743,7 +770,7 @@ export default class Interface {
         // Add JS for modal corpus
         var that = this
 
-        document.getElementById('tree_adder_modal_add_mapping_file_input' + this.container_object.uid).onchange = function() {
+        document.getElementById('tree_adder_modal_add_mapping_file_input' + this.container_object.uid).onchange = function () {
             let input = this.files[0];
 
             if (input) {
@@ -756,17 +783,17 @@ export default class Interface {
 
                 reader.addEventListener("load", parseFile, false);
                 reader.readAsText(input);
-                function parseFile(){
+
+                function parseFile() {
 
                     // load data
-                    if (input.name.split('.').pop() == 'tsv'){
-                        data = d3.tsvParse(reader.result, function(d){
+                    if (input.name.split('.').pop() == 'tsv') {
+                        data = d3.tsvParse(reader.result, function (d) {
                             return d;
                         });
-                    }
-                    else{
+                    } else {
 
-                        data = d3.csvParse(reader.result, function(d){
+                        data = d3.csvParse(reader.result, function (d) {
                             return d;
                         });
 
@@ -777,11 +804,13 @@ export default class Interface {
                     var numerisator = {}
                     numerisator['id'] = 'cat'
                     data['columns'].forEach((currentElement) => {
-                        if (currentElement != 'id'){  numerisator[currentElement] = 'num'}
+                        if (currentElement != 'id') {
+                            numerisator[currentElement] = 'num'
+                        }
                     })
                     data.forEach((currentElement) => {
                         for (var key of Object.keys(numerisator)) {
-                            if (isNaN(currentElement[key])){
+                            if (isNaN(currentElement[key])) {
                                 numerisator[key] = 'cat'
                             }
                         }
@@ -792,7 +821,7 @@ export default class Interface {
                     var select = document.getElementById('add_mapping_ref_select' + that.container_object.uid)
                     select.innerHTML = '';
 
-                    for (var key of Object.keys(numerisator)){
+                    for (var key of Object.keys(numerisator)) {
                         var opt = document.createElement('option');
                         opt.value = key;
                         opt.innerHTML = key;
@@ -800,13 +829,12 @@ export default class Interface {
                     }
 
 
-
-
                     // creates radios
-                    var radio_container = document.getElementById( 'tree_adder_mod_meta_card2_radio' + that.container_object.uid)
+                    var radio_container = document.getElementById('tree_adder_mod_meta_card2_radio' + that.container_object.uid)
                     radio_container.innerHTML = '';
 
-                    var get_el = function(){return `
+                    var get_el = function () {
+                        return `
                         
                             <div  style = "padding: 12px 24px 0;">  <span><b style = "margin-right: 12px" > Column:  </b> "NAME_"</span>  <br>
 
@@ -838,18 +866,19 @@ export default class Interface {
               
                     
                 </div>
-                        `}
+                        `
+                    }
 
-                    for (var key of Object.keys(numerisator)){
+                    for (var key of Object.keys(numerisator)) {
 
                         var rad = get_el()
 
 
                         rad = rad.replace('NAME_', key)
-                        rad = rad.replaceAll('flexRadioDefault', 'tree_adder_flexRadioDefault_' + key +  that.container_object.uid )
-                        rad = rad.replace('RADIO_1',  that.container_object.uid + 'mapping_header_radiotree_adder_1' +  '__' + key )
-                        rad = rad.replace('RADIO_2',  that.container_object.uid + 'mapping_header_radiotree_adder_2'  + '__' + key )
-                        rad = rad.replace('RADIO_3',  that.container_object.uid + 'mapping_header_radiotree_adder_3'  + '__' + key )
+                        rad = rad.replaceAll('flexRadioDefault', 'tree_adder_flexRadioDefault_' + key + that.container_object.uid)
+                        rad = rad.replace('RADIO_1', that.container_object.uid + 'mapping_header_radiotree_adder_1' + '__' + key)
+                        rad = rad.replace('RADIO_2', that.container_object.uid + 'mapping_header_radiotree_adder_2' + '__' + key)
+                        rad = rad.replace('RADIO_3', that.container_object.uid + 'mapping_header_radiotree_adder_3' + '__' + key)
 
 
                         if (numerisator[key] == 'num') {
@@ -861,18 +890,17 @@ export default class Interface {
                             rad = rad.replace('ATTR_NUM', '')
                             rad = rad.replace('ATTR_CAT', '')
                             rad = rad.replace('ATTR_COLOR', 'checked')
-                        }
-                        else {
+                        } else {
                             rad = rad.replace('ATTR_NUM', 'disabled')
                             rad = rad.replace('ATTR_CAT', 'checked')
                             rad = rad.replace('ATTR_COLOR', '')
                         }
 
 
-                        radio_container.insertAdjacentHTML('beforeend',rad)
+                        radio_container.insertAdjacentHTML('beforeend', rad)
 
                     }
-                    radio_container.insertAdjacentHTML('beforeend','<br>')
+                    radio_container.insertAdjacentHTML('beforeend', '<br>')
 
                 }
 
@@ -881,18 +909,16 @@ export default class Interface {
         };
 
 
-        document.getElementById("menu_help_add_tree").onclick = function() {
+        document.getElementById("menu_help_add_tree").onclick = function () {
             $('#modal_help').modal('show');
 
         };
 
 
-
-
     }
 
-    get_modal_template(){
-        return  `
+    get_modal_template() {
+        return `
             <div class="modal" id="exampleModal" tabindex="-1">
                 <div class="modal-dialog modal-dialog-centered modal-lg">
                     <div class="modal-content">
