@@ -2486,6 +2486,9 @@ export default class Interface {
         //this.add_swicth_UI(this.menu_tree_p, this.viewer.model.settings.display_internal_label,"Show internal label",   this.viewer.toggle_internal_label.bind(this.viewer))
 
 
+        // ADD TOGGLE show internal name for triangle
+        this.add_swicth_UI(this.menu_tree_p, this.viewer.model.settings.use_internal_node_name_for_triangles,"Show collapsed subtrees name",   this.viewer.toggle_triangle_name.bind(this.viewer))
+
         // ADD TOGGLE tooltips
         this.add_swicth_UI(this.menu_tree_p, this.viewer.model.settings.subsample_label,"Subsample labels",   this.viewer.toggle_subsample.bind(this.viewer))
 

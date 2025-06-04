@@ -30,6 +30,7 @@ export default class Model {
             'use_branch_lenght' : true,
             'show_tooltips' : false,
             'subsample_label' : true,
+            'use_internal_node_name_for_triangles' : true,
             'display_internal_label' : false,
             'display_internal_label_left_top' : false,
             'display_internal_label_left_bottom' : false,

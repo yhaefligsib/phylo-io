@@ -1679,6 +1679,14 @@ export default class Viewer {
 
     }
 
+    toggle_triangle_name(){
+        this.model.settings.use_internal_node_name_for_triangles = !this.model.settings.use_internal_node_name_for_triangles
+        this.render(this.hierarchy)
+
+    }
+
+
+
     toggle_subsample(){
         this.model.settings.subsample_label = !this.model.settings.subsample_label
         var k = this.d3.zoomTransform(d3.select("#master_g" + this.uid).node()).k
@@ -2409,6 +2417,10 @@ export default class Viewer {
                     if (d.data.collapse){
 
                         if (this.container_object.api.settings.phylostratigraphy){
+                            return d.data.name
+                        }
+
+                        if (this.model.settings.use_internal_node_name_for_triangles && d.data.name != ''){
                             return d.data.name
                         }
 
