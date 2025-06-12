@@ -22,6 +22,12 @@
     height: 56px;
 }
 
+.square_button.mini{
+
+    width: 42px;
+    height: 42px;
+}
+
 .square_button:hover{
     background-color: #ddd;
 }
