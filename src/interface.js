@@ -2133,7 +2133,7 @@ export default class Interface {
         // ADD THE ACCORDION SYSTEM
 
         this.menu_exportimage_b = this.menu_export.append('button').attr('class', 'accordion').text("Export as Graphic")
-        this.menu_exportimage_p = this.menu_export.append('div').attr('class', 'panel').append("div").style("padding", "14px")
+        this.menu_exportimage_p = this.menu_export.append('div').attr('class', 'panel').append("div").style("padding", "6px")
 
         this.export_as = this.menu_exportimage_p.append('div')
             .style('display', 'flex')
@@ -2161,7 +2161,7 @@ export default class Interface {
 
 
         this.menu_exportfile_b = this.menu_export.append('button').attr('class', 'accordion').text("Export as Text")
-        this.menu_exportfile_p = this.menu_export.append('div').attr('class', 'panel').append("div").style("padding", "14px")
+        this.menu_exportfile_p = this.menu_export.append('div').attr('class', 'panel').append("div").style("padding", "6px")
 
         this.export_as = this.menu_exportfile_p.append('div')
             .style('display', 'flex')
@@ -2335,16 +2335,16 @@ export default class Interface {
         this.menu_tree_b = this.menu_settings.append('button').attr('id', 'accordion_branch'+this.container_object.uid).attr('class', 'accordion').text("Branches & Labels")
         this.menu_tree_p =  this.menu_settings.append('div').attr('class', 'panel').append("div").style("padding", "14px")
 
-        this.menu_search_b = this.menu_settings.append('button').attr('id', 'accordion_branch'+this.container_object.uid).attr('class', 'accordion').text("Search")
-        this.menu_search_p =  this.menu_settings.append('div').attr('class', 'panel').append("div").style("padding", "14px")
 
         //this.menu_metadata_b = this.menu_settings.append('button').attr('id', 'accordion_color'+this.container_object.uid).attr('class', 'accordion').text("Additional Information")
         //this.menu_metadata_p =  this.menu_settings.append('div').attr('class', 'panel').append("div").style("padding", "14px")
 
         this.menu_coloring_b = this.menu_settings.append('button').attr('id', 'accordion_color'+this.container_object.uid).attr('class', 'accordion').text("Coloring")
         this.menu_coloring_panel =  this.menu_settings.append('div').attr('class', 'panel').attr('id', 'coloring_panel' + this.container_object.uid)
-
         this.menu_coloring_p = this.menu_coloring_panel.append("div").style("padding", "14px").attr('id', 'coloring_p' + this.container_object.uid)
+
+        this.menu_search_b = this.menu_settings.append('button').attr('id', 'accordion_branch'+this.container_object.uid).attr('class', 'accordion').text("Search options")
+        this.menu_search_p =  this.menu_settings.append('div').attr('class', 'panel').append("div").style("padding", "14px")
 
         if (this.viewer.model.settings.has_histogram_data && this.viewer.model.settings.show_histogram ) {
         this.menu_stack_b = this.menu_settings.append('button').attr('class', 'accordion').text("Bar Graph")
@@ -2458,7 +2458,7 @@ export default class Interface {
 
         // ADD TOGGLE BRANCH LENGTH
         if(this.viewer.model.settings.has_branch_lenght){
-            this.add_swicth_UI(this.menu_general_p, this.viewer.model.settings.use_branch_lenght,"Use branch length",   this.viewer.toggle_use_length.bind(this.viewer))
+            this.add_swicth_UI(this.menu_general_p, !this.viewer.model.settings.use_branch_lenght,"Ignore branch length",   this.viewer.toggle_use_length.bind(this.viewer))
         }
 
         this.add_swicth_UI(this.menu_general_p, this.viewer.model.settings.align_tip,"Align leaves",   this.viewer.toggle_align_tip.bind(this.viewer))
@@ -2475,8 +2475,11 @@ export default class Interface {
   */
 
 
-        this.buttons_height = this.add_quartet_buttons(this.menu_general_p, "Tree height", "buton_vertical_size_", this.container_object.modify_node_size_percent, 'vertical')
-        this.buttons_width = this.add_quartet_buttons(this.menu_general_p, "Tree width", "buton_horyzontal_size_", this.container_object.modify_node_size_percent, 'horizontal')
+        //this.buttons_height = this.add_quartet_buttons(this.menu_general_p, "Tree height", "buton_vertical_size_", this.container_object.modify_node_size_percent, 'vertical')
+        //this.buttons_width = this.add_quartet_buttons(this.menu_general_p, "Tree width", "buton_horyzontal_size_", this.container_object.modify_node_size_percent, 'horizontal')
+
+        this.add_quartet_buttons_single_line(this.menu_general_p, "Tree height", "buton_vertical_size_", this.container_object.modify_node_size_percent, 'vertical')
+        this.add_quartet_buttons_single_line(this.menu_general_p, "Line width", "buton_horyzontal_size_", this.container_object.modify_node_size_percent, 'horizontal')
 
 
         // ADD SELECT LEFT NODE LABEL
@@ -2499,7 +2502,7 @@ export default class Interface {
         this.add_swicth_UI(this.menu_tree_p, this.viewer.model.settings.display_leaves,"Show node labels",   this.viewer.toggle_node_labels.bind(this.viewer))
 
         // ADD TOGGLE tooltips
-        this.add_swicth_UI(this.menu_tree_p, this.viewer.model.settings.show_tooltips,"Show tooltips",   this.viewer.toggle_tooltips.bind(this.viewer))
+        this.add_swicth_UI(this.menu_tree_p, this.viewer.model.settings.show_tooltips,"Show data tooltips",   this.viewer.toggle_tooltips.bind(this.viewer))
 
         if (this.viewer.model.settings.has_duplications){
             // ADD TOGGLE DUPLICATION
@@ -2507,10 +2510,12 @@ export default class Interface {
 
         }
 
-        this.add_quartet_buttons(this.menu_tree_p, "Node radius", "buton_node_radius_", this.container_object.update_node_radius_percent )
+        //this.add_quartet_buttons(this.menu_tree_p, "Node radius", "buton_node_radius_", this.container_object.update_node_radius_percent )
+        this.add_quartet_buttons_single_line(this.menu_tree_p, "Node radius", "buton_node_radius_", this.container_object.update_node_radius_percent)
 
 
-        this.add_quartet_buttons(this.menu_tree_p, "Line width", "buton_line_width_", this.container_object.update_line_width_percent)
+        //this.add_quartet_buttons(this.menu_tree_p, "Line width", "buton_line_width_", this.container_object.update_line_width_percent)
+        this.add_quartet_buttons_single_line(this.menu_tree_p, "Line width", "buton_line_width_", this.container_object.update_line_width_percent)
 
 
 
@@ -3747,7 +3752,7 @@ export default class Interface {
 
 
         var butty_putty1 = buttons.append('button')
-            .attr('class', ' square_button')
+            .attr('class', ' square_button mini')
             .style('border-radius', '0px')
             .style('padding', '2px')
             .attr('id', id + 'first' +  this.container_object.uid )
@@ -3756,19 +3761,16 @@ export default class Interface {
             .style('flex-grow', '1')
 
 
-        butty_putty1.append("div").append('i')
-            .style('color', '#888')
-            .style('font-size', '12px')
-            .attr('class', 'bi bi-dash')
+
 
         butty_putty1.append('p')
-            .text('-50%')
+            .text('- 50%')
             .style('font-size', 'xx-small')
             .style('line-height', 'normal')
             .style('margin-bottom', '4px')
 
         var butty_putty2 = buttons.append('button')
-            .attr('class', ' square_button')
+            .attr('class', ' square_button mini')
             .style('border-radius', '0px')
             .style('padding', '2px')
             .attr('id', id + 'second' +  this.container_object.uid )
@@ -3777,20 +3779,16 @@ export default class Interface {
             .style('flex-grow', '1')
 
 
-        butty_putty2.append("div").append('i')
-            .style('color', '#888')
-            .style('font-size', '8px')
-            .attr('class', ' bi bi-dash ')
 
         butty_putty2.append('p')
-            .text('-20%')
+            .text('- 20%')
             .style('font-size', 'xx-small')
             .style('line-height', 'normal')
             .style('margin-bottom', '4px')
 
 
         var butty_putty3 = buttons.append('button')
-            .attr('class', ' square_button')
+            .attr('class', ' square_button mini')
             .style('border-radius', '0px')
             .style('padding', '2px')
             .attr('id', id + 'third' +  this.container_object.uid )
@@ -3800,13 +3798,9 @@ export default class Interface {
 
 
 
-        butty_putty3.append("div").append('i')
-            .style('color', '#888')
-            .style('font-size', '8px')
-            .attr('class', ' bi bi-plus ')
 
         butty_putty3.append('p')
-            .text('+20%')
+            .text('+ 20%')
             .style('font-size', 'xx-small')
             .style('line-height', 'normal')
             .style('margin-bottom', '4px')
@@ -3814,7 +3808,7 @@ export default class Interface {
 
 
         var butty_putty4 = buttons.append('button')
-            .attr('class', ' square_button')
+            .attr('class', ' square_button mini')
             .style('border-radius', '0px')
             .style('padding', '2px')
             .attr('id', id + 'fourth' +  this.container_object.uid )
@@ -3824,13 +3818,8 @@ export default class Interface {
 
 
 
-        butty_putty4.append("div").append('i')
-            .style('color', '#888')
-            .style('font-size', '12px')
-            .attr('class', ' bi bi-plus ')
-
         butty_putty4.append('p')
-            .text('+50%')
+            .text('+ 50%')
             .style('font-size', 'xx-small')
             .style('line-height', 'normal')
             .style('margin-bottom', '4px')
