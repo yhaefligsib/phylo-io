@@ -42,6 +42,7 @@ export default class Viewer {
         this.container_d3.style('font-family', 'monospace !important' )
 
         this.interface;
+        this.blinking=0;
 
         // Settings
         this.settings = {
@@ -400,6 +401,7 @@ export default class Viewer {
         var show_duplications = this.model.settings.display_duplication
         var mirror_factor = this.model.settings.mirror ? -1 : 1
         var deepest_tip = 0;
+        var k = this.d3.zoomTransform(d3.select("#master_g" + this.uid).node()).k
 
         // update x pos with branch length
         this.nodes.forEach(d => {
@@ -535,7 +537,7 @@ export default class Viewer {
         this.nodeUpdate.select('circle.node')
             .attr('r', d => d._children || (!this.model.rooted && d.data.root ) ?  1e-6 : real_node_radius )
             .style("fill",   (d) => {
-                if ( d.data.duplication && show_duplications){
+                if ( (d.data.duplication && show_duplications)){
                     return 'red'
                 }
 
@@ -569,6 +571,37 @@ export default class Viewer {
 
             })
             .attr('cursor', 'pointer');
+
+        if (this.blinking > 0)  {
+
+            var BCN_nodes = node.select('circle.node').filter(d => d.data._show_BCN);
+
+            BCN_nodes.style('stroke', 'red')
+                .style('stroke-width', (d) => { return  (2/k) + 'px'})
+
+            // Blinking effect
+            let isVisible = true;
+            const interval = setInterval(() => {
+                isVisible = !isVisible;
+                BCN_nodes.style("stroke-opacity", isVisible ? 1 : 0);
+                this.blinking -= 1;
+
+
+                if (this.blinking <= 0) {
+                    clearInterval(interval); // Stop the interval when blinking reaches 0
+                    BCN_nodes.style("stroke-opacity", 0); // Ensure stroke is visible after stopping
+                }
+
+            }, 750); // Blink every 500ms
+
+
+        }
+
+
+
+
+
+
 
         this.node_face_update(this.nodeUpdate)
 
@@ -1127,6 +1160,15 @@ export default class Viewer {
                 ]
             }
 
+            if (this.container_object.api.settings.compareMode && this.container_object.api.bound_container.includes(this.container_object)){
+
+                menu.push({
+                    title: 'Highlight BCN' ,
+                    action: () =>  {this.container_object.trigger_("BCN", node.data, node)}
+                })
+
+            }
+
             if (this.container_object.api.settings.phylostratigraphy){
 
                 menu.push({
@@ -1138,6 +1180,8 @@ export default class Viewer {
 
 
         }
+
+
 
 
         menu.push({
@@ -2651,6 +2695,8 @@ export default class Viewer {
         nodeExit.select('text')
             .style('fill-opacity', 1e-6);
     }
+
+
 
 };
 

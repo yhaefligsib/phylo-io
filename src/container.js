@@ -290,8 +290,51 @@ export default class Container {
 
 
         }
+        else if (action === 'BCN'){
+
+            var other_container = this.api.bound_container[0] === this ? this.api.bound_container[1] : this.api.bound_container[0]
+
+            // get BCN node
+            var target_node = node.data.elementBCN[other_container.viewer.model.uid]
+
+            if (!target_node){
+                console.log('No BCN node found for this container')
+                return
+            }
+
+            var target_hierarchy = this.getHierarchyNodeFromModelNode(target_node, other_container.viewer.hierarchy)
+
+
+            other_container.expandToRoot(target_node)
+            other_container.viewer.centerNode(target_hierarchy)
+
+            target_node._show_BCN = true
+            other_container.viewer.blinking = 6
+            other_container.viewer.render(other_container.viewer.hierarchy)
+
+        }
 
     }
+
+    expandToRoot(node_model ) {
+
+        var model  = this.viewer.model;
+        var hierarchy = this.viewer.hierarchy;
+
+        var node = node_model
+        while (node) {
+            model.collapse(node, false)
+
+            var node_hierarchy = this.getHierarchyNodeFromModelNode(node, hierarchy)
+            this.viewer.apply_collapse_from_data_to_d3(node, node_hierarchy)
+            node = node.parent; // Move to the parent node
+        }
+
+    }
+
+
+
+
 
     // collapse all node from depth
     collapse_depth(depth, tree){
@@ -843,6 +886,26 @@ export default class Container {
         save_file_as(this.viewer.model.settings.name  + ".nhx", nhx)
 
 
+    }
+
+    traverseAllNodes(node, callback) {
+        callback(node); // Apply the callback to the current node
+        const children = node.children || node._children; // Include both expanded and collapsed nodes
+        if (children) {
+            children.forEach((child) => this.traverseAllNodes(child, callback));
+        }
+    }
+
+    getHierarchyNodeFromModelNode(modelNode, hierarchy) {
+        let equivalentNode = null;
+
+        this.traverseAllNodes(hierarchy, (d) => {
+            if (d.data === modelNode) {
+                equivalentNode = d;
+            }
+        });
+
+        return equivalentNode;
     }
 
 
