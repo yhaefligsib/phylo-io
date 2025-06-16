@@ -2964,7 +2964,7 @@ export default class Interface {
             .style('margin', '12px 0px')
             .style('flex-grow', '1')
             .append("text")
-            .text("Collapse uncolored sub-tree ")
+            .text("Collapse uncolored subtrees ")
 
         // Add button for collapse unicolored taxon
         this.collapse_unicolor_button_div = this.menu_coloring_p.append('div')
@@ -2983,7 +2983,7 @@ export default class Interface {
             .style('margin', '12px 0px')
             .style('flex-grow', '1')
             .append("text")
-            .text("Collapse monocolored sub-tree ")
+            .text("Collapse monocolored subtrees ")
 
 
         // add sync coloring
