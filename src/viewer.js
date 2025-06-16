@@ -302,6 +302,7 @@ export default class Viewer {
                 this.maximise_zoom()
                 this.svg.call(this.zoom.scaleBy, 0.5)
                 this.container_object.history_actions = []
+                this.container_object.undone_actions = []
 
             }
 
@@ -597,12 +598,6 @@ export default class Viewer {
 
         }
 
-
-
-
-
-
-
         this.node_face_update(this.nodeUpdate)
 
         // Remove any exiting nodes
@@ -671,87 +666,93 @@ export default class Viewer {
         })
 
         // align to tip
+        this.G.selectAll("line.dashed_line").remove()
+        if (this.model.settings.align_tip) {
 
-        if (this.model.settings.align_tip){
+            var update_dashed = (d) => {
+
+                this.G.append("line")
+                    .attr("class", "dashed_line")
+                    .attr("x1", mirror_factor * d.y)
+                    .attr("y1", d.x)
+                    .attr("x2", mirror_factor * (d.y + d.off_set_to_tip))
+                    .attr("y2", d.x)
+                    .style("stroke", "white")
+                    .style("stroke-dasharray", this.compute_edge_width() + ', ' + this.compute_edge_width())
+            }
+
+
 
             if (this.model.settings.has_branch_lenght && this.model.settings.use_branch_lenght) {
 
                 // update y pos with branch length
                 this.nodes.forEach(d => {
 
-                    var distance_root_to_tip = this.scale_branch_length(d.data.distance_to_root) + (d.data.triangle_width ? d.data.triangle_width : 0)
+                    var distance_root_to_tip = this.scale_branch_length(d.data.distance_to_root) + (d.data.triangle_width ? d.data.triangle_width : 0);
 
-                    if (deepest_tip <distance_root_to_tip ){
-                        deepest_tip =  distance_root_to_tip
+                    if (deepest_tip < distance_root_to_tip) {
+                        deepest_tip = distance_root_to_tip;
                     }
-                })
+                });
 
                 // Transition to the proper position for the node
                 this.nodeUpdate.transition()
                     .duration(duration)
-                    .attr("transform", (d) =>  {
+                    .attr("transform", (d) => {
 
-                        if (d.children ){
-                            d.off_set_to_tip = 0
-                            return "translate(" + (mirror_factor*d.y) + "," + d.x + ")";
+                        if (d.children) {
+                            d.off_set_to_tip = 0;
+                            return "translate(" + (mirror_factor * d.y) + "," + d.x + ")";
+                        } else if (d._children) {
+                            d.off_set_to_tip = deepest_tip - this.scale_branch_length(d.data.distance_to_root) - d.data.triangle_width;
+
+                            update_dashed(d)
+
+                            return "translate(" + (mirror_factor * (d.y + d.off_set_to_tip)) + "," + d.x + ")";
+                        } else {
+                            d.off_set_to_tip = deepest_tip - this.scale_branch_length(d.data.distance_to_root);
+
+                            update_dashed(d)
+
+                            return "translate(" + (mirror_factor * (d.y + d.off_set_to_tip)) + "," + d.x + ")";
                         }
-
-                        else if (d._children) {
-                            d.off_set_to_tip =   deepest_tip - this.scale_branch_length(d.data.distance_to_root) - d.data.triangle_width
-                            return "translate(" + (mirror_factor*(d.y + d.off_set_to_tip)) + "," + d.x + ")";
-                        }
-
-                        else {
-                            d.off_set_to_tip =  deepest_tip - this.scale_branch_length(d.data.distance_to_root)
-                            return "translate(" + (mirror_factor* (d.y + d.off_set_to_tip)) + "," + d.x + ")";
-                        }
-
-
-
-
                     });
             }
-            else{
+            else {
 
                 // update y pos with branch length
                 this.nodes.forEach(d => {
 
-                    var distance_root_to_tip = this.scale_branch_depth(d.data.depth) + (d.data.triangle_width ? d.data.triangle_width : 0)
+                    var distance_root_to_tip = this.scale_branch_depth(d.data.depth) + (d.data.triangle_width ? d.data.triangle_width : 0);
 
-                    if (deepest_tip <distance_root_to_tip ){
-                        deepest_tip =  distance_root_to_tip
+                    if (deepest_tip < distance_root_to_tip) {
+                        deepest_tip = distance_root_to_tip;
                     }
-                })
+                });
 
                 // Transition to the proper position for the node
                 this.nodeUpdate.transition()
                     .duration(duration)
-                    .attr("transform", (d) =>  {
+                    .attr("transform", (d) => {
 
-                        if (d.children ){
-                            d.off_set_to_tip = 0
-                            return "translate(" + (mirror_factor*d.y) + "," + d.x + ")";
+                        if (d.children) {
+                            d.off_set_to_tip = 0;
+                            return "translate(" + (mirror_factor * d.y) + "," + d.x + ")";
+                        } else if (d._children) {
+                            d.off_set_to_tip = deepest_tip - this.scale_branch_depth(d.data.depth) - d.data.triangle_width;
+
+                            update_dashed(d)
+
+                            return "translate(" + (mirror_factor * (d.y + d.off_set_to_tip)) + "," + d.x + ")";
+                        } else {
+                            d.off_set_to_tip = deepest_tip - this.scale_branch_depth(d.data.depth);
+
+                            update_dashed(d)
+
+                            return "translate(" + (mirror_factor * (d.y + d.off_set_to_tip)) + "," + d.x + ")";
                         }
-
-                        else if (d._children) {
-                            d.off_set_to_tip =   deepest_tip - this.scale_branch_depth(d.data.depth) - d.data.triangle_width
-                            return "translate(" + (mirror_factor*(d.y + d.off_set_to_tip)) + "," + d.x + ")";
-                        }
-
-                        else {
-                            d.off_set_to_tip =  deepest_tip - this.scale_branch_depth(d.data.depth)
-                            return "translate(" + (mirror_factor* (d.y + d.off_set_to_tip)) + "," + d.x + ")";
-                        }
-
-
-
-
                     });
             }
-
-
-
-
         }
 
 
@@ -914,6 +915,9 @@ export default class Viewer {
             .attr('d', d => this.square_edges({x: source.x, y: source.y}, {x: source.x, y: source.y}))
             .remove();
 
+        var real_edges_width = this.compute_edge_width()
+        this.G.selectAll('.dashed_line').style('stroke-width',  real_edges_width + 'px')
+
     }
 
     get_compared_model(){
@@ -1054,10 +1058,11 @@ export default class Viewer {
 
                 var real_edges_width = this.compute_edge_width()
                 this.G.selectAll('path.link').style('stroke-width',  real_edges_width + 'px')
+                this.G.selectAll('.dashed_line').style('stroke-width',  real_edges_width + 'px')
+
+
 
             }
-
-
 
             this.model.store_zoomTransform(transform)
 
@@ -1498,7 +1503,9 @@ export default class Viewer {
     maximise_zoom(){
 
         var old_zoom = this.d3.zoomTransform(d3.select("#master_g" + this.uid).node())
-        this.container_object.add_action('Stretch tree',  this, this.render_with_settings, [old_zoom.k, old_zoom.x,old_zoom.y,this.model.settings.tree.node_horizontal_size, []] )
+
+
+
         // Adjust Zoom-y to fit height
         var r = this.get_height_hierarchy()
         var vh = this.height - this.settings.style.offset_top_fit
@@ -1536,6 +1543,11 @@ export default class Viewer {
 
         var real_edges_width = this.compute_edge_width()
         this.G.selectAll('path.link').style('stroke-width',  real_edges_width + 'px')
+        this.G.selectAll('.dashed_line').style('stroke-width',  real_edges_width + 'px')
+
+        var undo = {'name': 'Revert Zoom', 'fonction_obj': this, 'fonct':  this.render_with_settings, 'argu': [old_zoom.k, old_zoom.x,old_zoom.y,this.model.settings.tree.node_horizontal_size, []]}
+        var redo = {'name': 'Stretch tree', 'fonction_obj': this, 'fonct':  this.render_with_settings, 'argu': [h_scale, x_tr, y_tr,ns, []] }
+        this.container_object.add_action(undo, redo, true)
 
     }
 
@@ -1543,7 +1555,9 @@ export default class Viewer {
 
         var collapsed = this.model.get_all_collapse(this.model.data)
         var old_zoom = this.d3.zoomTransform(d3.select("#master_g" + this.uid).node())
-        this.container_object.add_action('Compact tree',  this, this.render_with_settings, [old_zoom.k, old_zoom.x,old_zoom.y,this.model.settings.tree.node_horizontal_size, collapsed] )
+
+
+
 
         // Increment Collapsed Depth until "Visible leaf" > "Max visible leaves"
         var depth;
@@ -1604,6 +1618,11 @@ export default class Viewer {
 
         var real_edges_width = this.compute_edge_width()
         this.G.selectAll('path.link').style('stroke-width',  real_edges_width + 'px')
+        this.G.selectAll('.dashed_line').style('stroke-width',  real_edges_width + 'px')
+
+        var undo = {'name': 'Uncompact tree', 'fonction_obj': this, 'fonct':  this.render_with_settings, 'argu': [old_zoom.k, old_zoom.x,old_zoom.y,this.model.settings.tree.node_horizontal_size, collapsed]}
+        var redo = {'name': 'Compact tree', 'fonction_obj': this, 'fonct':  this.fit_to_viewer_height, 'argu': [] }
+        this.container_object.add_action(undo, redo, true)
 
 
 
@@ -1629,6 +1648,7 @@ export default class Viewer {
 
         var real_edges_width = this.compute_edge_width()
         this.G.selectAll('path.link').style('stroke-width',  real_edges_width + 'px')
+        this.G.selectAll('.dashed_line').style('stroke-width',  real_edges_width + 'px')
 
     }
 
@@ -1675,8 +1695,8 @@ export default class Viewer {
 
     toggle_align_tip(){
         this.model.settings.align_tip = !this.model.settings.align_tip
-
         this.render(this.hierarchy)
+
     }
 
     toggle_mirror(){

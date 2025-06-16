@@ -1,0 +1,12 @@
+     578 ./api.js
+      40 ./color_mapper.js
+     916 ./container.js
+      40 ./index.js
+    4149 ./interface.js
+      70 ./keyboardManager.js
+    1349 ./model.js
+    1484 ./phyloxml.js
+     987 ./utils.js
+    2703 ./viewer.js
+     144 ./worker_bcn.js
+      10 ./worker_distance.js

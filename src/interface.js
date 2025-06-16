@@ -109,6 +109,9 @@ export default class Interface {
         this.add_meta()
         this.add_settings()
         this.add_undo()
+        this.add_redo()
+
+
 
         // COLOR LEGEND
         if (this.api.settings.compareMode || (this.viewer.model.settings.style.color_accessor['node'] !== null && this.viewer.model.settings.style.color_accessor['node'] !== 'Topology'  )){
@@ -1082,7 +1085,11 @@ export default class Interface {
                 edit_name_ok.style.display = 'none';
                 edit_name_trash.style.display = 'none';
                 var old_name = this.viewer.model.get_name()
-                this.container_object.add_action('Rename tree',  this.viewer.model, this.viewer.model.set_name, [old_name], true )
+
+                var undo = {'name': 'Rename tree', 'fonction_obj': this.viewer.model, 'fonct':  this.viewer.model.set_name, 'argu': [old_name]}
+                var redo = {'name': 'Rename tree', 'fonction_obj': this.viewer.model, 'fonct':  this.viewer.model.set_name, 'argu': [edit_name.textContent]}
+                this.container_object.add_action(undo, redo, true)
+
                 this.viewer.model.set_name(edit_name.textContent)
                 return false;
             }
@@ -1116,7 +1123,11 @@ export default class Interface {
 
         edit_name_ok.addEventListener('click', (event) => {
             var old_name = this.viewer.model.get_name()
-            this.container_object.add_action('Rename tree',  this.viewer.model, this.viewer.model.set_name, [old_name], true )
+
+            var undo = {'name': 'Rename tree', 'fonction_obj': this.viewer.model, 'fonct':  this.viewer.model.set_name, 'argu': [old_name]}
+            var redo = {'name': 'Rename tree', 'fonction_obj': this.viewer.model, 'fonct':  this.viewer.model.set_name, 'argu': [edit_name.textContent]}
+            this.container_object.add_action(undo, redo, true)
+
             this.viewer.model.set_name(edit_name.textContent)
 
         });
@@ -1672,8 +1683,7 @@ export default class Interface {
                            </div>
                            
                             <p style="padding: 0 24px;"><small>
-                            <b>Accepted format:</b> '.csv' or '.tsv' and must contain column names in the first row. 
-                            You can choose a column as reference for the mapping using the selection widget below, where reference name should matched the leaves and nodes names in the input file. 
+                            <b>Accepted format:</b> .csv or .tsv with column names in the first row. Use the selector below to choose a reference column matching leaf or node names in the input file.
                             </small></p>
                             
                             <div class="text-center" style="margin-left: 48px;margin-right: 48px;">
@@ -2220,25 +2230,28 @@ export default class Interface {
 
     // UNDO
     add_undo(){
+
         var divybuty = this.tr_buttons.append('button')
             .attr('class', ' square_button')
             .attr('id', 'buttonundo_' + this.container_object.div_id )
             .attr('data-bs-placement', 'bottom')
             .attr('title',  d=> { return  this.container_object.history_actions.length > 0 ? 'Undo ' + this.container_object.get_last_action().name :  'Nothing to undo' })
             .style('margin', '2px')
-            .on("click", d => {
-                this.api.undoing = true
+           .on("click", d => {
+                this.api.undoing = true;
                 var cta = this.container_object.pop_last_action();
-                if (cta) {
+                cta = cta.undo
+                if (cta && typeof cta.fonct === 'function') {
                     cta.fonct.apply(cta.fonction_obj, cta.argu);
 
-                    if (cta.refresh_interface){
-                        let empty = this.container_object.models.length <= 0
-                        this.container_object.interface = new Interface(this.viewer, this.container_object, empty )
+                    if (cta.refresh_interface) {
+                        let empty = this.container_object.models.length <= 0;
+                        this.container_object.interface = new Interface(this.viewer, this.container_object, empty);
                     }
-
+                } else {
+                    console.error('Invalid cta or cta.fonct:', cta);
                 }
-                this.api.undoing = false
+                this.api.undoing = false;
             })
 
 
@@ -2256,6 +2269,43 @@ export default class Interface {
             .style('font-size', 'xx-small')
 
         this.tooltip_undo = new bootstrap.Tooltip(document.getElementById('buttonundo_' + this.container_object.div_id))
+
+    }
+
+    add_redo(){
+
+        var divybuty = this.tr_buttons.append('button')
+            .attr('class', ' square_button')
+            .attr('id', 'buttonredo_' + this.container_object.div_id )
+            .attr('data-bs-placement', 'bottom')
+            .attr('title',  d=> { return  this.container_object.history_actions.length > 0 ? 'Redo ' + this.container_object.get_last_action().redo.name :  'Nothing to redo' })
+            .style('margin', '2px')
+            .on("click", d => {
+                var cta = this.container_object.pop_redo_action();
+                cta = cta.redo
+                if (cta && typeof cta.fonct === 'function') {
+                    cta.fonct.apply(cta.fonction_obj, cta.argu);
+
+                    if (cta.refresh_interface) {
+                        let empty = this.container_object.models.length <= 0;
+                        this.container_object.interface = new Interface(this.viewer, this.container_object, empty);
+                    }
+                } else {
+                    console.error('Invalid cta or cta.fonct:', cta);
+                }
+            })
+
+        divybuty.append("div")
+            .attr("class","label")
+            .append('i')
+            .style('color', '#888')
+            .attr('class', 'bi-arrow-clockwise')
+
+        divybuty.append('p')
+            .text('Redo')
+            .style('font-size', 'xx-small')
+
+        this.tooltip_undo = new bootstrap.Tooltip(document.getElementById('buttonredo_' + this.container_object.div_id))
 
     }
 

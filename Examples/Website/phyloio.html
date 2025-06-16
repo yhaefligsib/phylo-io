@@ -106,19 +106,19 @@
             <li class="nav-item">
                 <a href="#" class="nav-link  py-3 border-bottom border-top" id="menu_load"  aria-current="page"  data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Load Session" >
                     <i class="bi-file-earmark-arrow-up" style="font-size: 24px;color: white "></i>
-                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Load</p>
+                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Load session</p>
                 </a>
             </li>
             <li>
                 <a href="#" class="nav-link py-3 border-bottom" id="menu_save" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Save Session">
                     <i class="bi-file-earmark-arrow-down" style="font-size: 24px;color: white  "></i>
-                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Save</p>
+                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Save session</p>
                 </a>
             </li>
             <li>
                 <a href="#" class="nav-link py-3 border-bottom" id="menu_share" title="" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Share Session">
                     <i class="bi-share" style="font-size: 24px;color: white  "></i>
-                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >share</p>
+                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Share session</p>
                 </a>
             </li>
             <li>
@@ -144,7 +144,7 @@
             <li>
                 <a href="#" id="menu_screenshot" class="nav-link py-3 border-bottom" title="" id="menu_screenshot" data-bs-toggle="tooltip" data-bs-placement="right" data-bs-original-title="Export as graphic">
                     <i class="bi-camera" style="font-size: 24px;color: white  "></i>
-                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Export</p>
+                    <p style="font-size: xx-small; color: white; margin-bottom:0px" >Screenshot session</p>
                 </a>
             </li>
 
@@ -193,9 +193,7 @@
                                 </div>
 
                                 <div class="alert alert-warning" role="alert">
-                                    <strong>Warning:</strong> Here you can only load .phyloio file that are generated from the download button
-                                    on the left menu. It will reset the current phylo.io session and load all data and settings from the file erasing if any data you have already load.
-                                   <b>If you only want to add a new tree please use the "add tree" button on the top left of each viewer. </b>
+                                    <strong>Warning:</strong> Only load .phyloio files generated via the download session button in the left menu. This will reset the current session and overwrite any loaded data. To add a new tree without resetting, use the "Add Tree" button at the top left of each viewer. </b>
                                 </div>
 
 
@@ -350,9 +348,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p> Here, you will make a screenshot of the current phylo.io view. This means that if the compare mode is activated it will
-                        export as image both viewers. If you want each individual viewer to be exported as single image please use  <i class=" fas fa-download " style="color: rgb(136, 136, 136);"></i> at the top righ of
-                        each viewers.</p>
+                    <p>This will take a screenshot of the current phylo.io view. If compare mode is active, both viewers will be included in the image. To export each viewer separately, use the screenshot button at the top right of each viewer.</p>
 
                     <label for="s_format_r" style="margin-left: 24px"><strong>Format:</strong> </label>
 

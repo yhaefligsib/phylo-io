@@ -24,6 +24,7 @@ export default class Container {
         this.current_model = 0; // current model index
         this.viewer = new Viewer(this); // attach Viewer()
         this.history_actions = [] //  for Undo feature
+        this.undone_actions = [] //  for Undo feature
         this.api = api
         this.message_loader = null
 
@@ -38,13 +39,25 @@ export default class Container {
 
     }
 
-    add_action(name, fn_object, counter_fn, argu, refresh_interface){
+    add_action(undo, redo, refresh_interface){
 
-        var refresh_interface = (typeof refresh_interface !== 'undefined') ? refresh_interface : false;
+        /* undo and redo object - {'name': X, 'fonct': X, 'fonction_obj': X, 'argu': X} */
 
-        if (!this.api.undoing){
-            this.history_actions.push({'name': name, 'fonct':counter_fn, 'fonction_obj':fn_object, 'argu': argu, 'refresh_interface' : refresh_interface})
+        if (this.api.undoing) {
+            return
         }
+
+
+        this.history_actions.push(
+            {
+            'undo': undo,
+            'redo': redo,
+            'refresh_interface' : (typeof refresh_interface !== 'undefined') ? refresh_interface : false,
+            }
+        )
+
+
+        console.log(this.history_actions)
 
     }
 
@@ -53,7 +66,13 @@ export default class Container {
     }
 
     pop_last_action(){
-        return this.history_actions.pop()
+        var pop  = this.history_actions.pop()
+        this.undone_actions.push(pop)
+        return pop
+    }
+
+    pop_redo_action(){
+        return this.undone_actions.pop()
     }
 
 
@@ -145,7 +164,7 @@ export default class Container {
 
         if (this.current_model + offset >= 0 && this.current_model + offset <= this.models.length -1 ) {
 
-            this.add_action('Change tree',  this, this.shift_model, [-offset, store_old] )
+            //this.add_action('Change tree',  this, this.shift_model, [-offset, store_old] )
 
             if (store_old){
                 // store the current zoom information
@@ -191,7 +210,21 @@ export default class Container {
         var m = this.models[this.current_model];
 
         if (action === 'collapse') {
-            this.add_action('Collapse this node',  this, this.trigger_, [action, data, node] )
+
+            var name_undo,name_redo;
+
+            if (data.children && data.collapse){
+                name_undo = 'Collapse this node';
+                name_redo = 'Expand this node';
+            }
+            else {
+                name_undo = 'Expand this node';
+                name_redo = 'Collapse this node';
+            }
+
+            var undo = {'name': name_undo, 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            var redo = {'name': name_redo, 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
             m.collapse(data)
             this.viewer.apply_collapse_from_data_to_d3(data, node)
             this.viewer.build_d3_cluster()
@@ -199,7 +232,11 @@ export default class Container {
 
         }
         else if (action === 'collapseAll') {
-            this.add_action('Collapse All',  this, this.trigger_, ['expandAll', data, node] )
+
+            var undo = {'name': 'Expand All', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': ['expandAll', data, node]}
+            var redo = {'name': 'Collapse All', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
+
             m.collapseAll(data, true)
             this.viewer.apply_collapseAll_from_data_to_d3(data, node)
             this.viewer.build_d3_cluster()
@@ -207,7 +244,11 @@ export default class Container {
 
         }
         else if (action === 'expandAll') {
-            this.add_action('Expand All',  this, this.trigger_, ['collapseAll', data, node] )
+
+            var undo = {'name': 'Collapse All', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': ['collapseAll', data, node]}
+            var redo = {'name': 'Expand All', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
+
             m.collapseAll(data, false)
             this.viewer.apply_expandAll_from_data_to_d3(data, node)
             this.viewer.build_d3_cluster()
@@ -215,7 +256,11 @@ export default class Container {
 
         }
         else if (action === 'swap') {
-            this.add_action('Swap',  this, this.trigger_, ['unswap', data, node] )
+
+            var undo = {'name': 'Unswap', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': ['unswap', data, node]}
+            var redo = {'name': 'Swap', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
+
             m.swap_subtrees(data)
             this.viewer.apply_swap_from_data_to_d3(data, node)
             this.viewer.build_d3_cluster()
@@ -233,7 +278,10 @@ export default class Container {
         }
         else if (action === 'reroot'){
 
-            this.add_action('Reroot',  this, this.trigger_, ['reroot', this.viewer.hierarchy.children[0].data, null] )
+            var undo = {'name': 'Reroot', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': ['reroot', this.viewer.hierarchy.children[0].data, null]}
+            var redo = {'name': 'Reroot', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
+
             m.reroot(data)
             m.rooted = true
             this.viewer.set_data(m)
@@ -255,7 +303,12 @@ export default class Container {
         }
         else if (action === 'trim'){
             var untrim_data = m.trim(data.data)
-            this.add_action('Trim',  this, this.trigger_, ['untrim', untrim_data, null] )
+
+
+            var undo = {'name': 'Untrim', 'fonction_obj': this, 'fonct': this.trigger_, 'argu':['untrim', untrim_data, null]}
+            var redo = {'name': 'Trim', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
+
             this.viewer.set_data(m)
             m.hierarchy_mockup = m.build_hierarchy_mockup()
             m.table = build_table(m.hierarchy_mockup)
@@ -282,7 +335,10 @@ export default class Container {
         }
         else if (action === 'force_show_label'){
 
-            this.add_action('Show Label',  this, this.trigger_, ['force_show_label', data, node] )
+            var undo = {'name': 'Toggle Label', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            var redo = {'name': 'Toggle Label', 'fonction_obj': this, 'fonct': this.trigger_, 'argu': [action, data, node]}
+            this.add_action(undo, redo)
+
             m.toggle_show_label(data)
             this.viewer.apply_show_label_from_data_to_d3(data, node)
             this.viewer.build_d3_cluster()
