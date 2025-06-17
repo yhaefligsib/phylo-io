@@ -965,7 +965,10 @@ export default class Viewer {
 
             var v = edge.data.extended_informations[acc];
 
-            if (typeof v == "undefined" ) {return "#555"}
+
+
+            // check if v is undefined or empty
+            if (typeof v == "undefined" || !v ) {return "#555"}
             else {
                 if (this.model.settings.extended_data_type[acc] == 'cat') {
                     return this.model.settings.colorScale['node'].get_color(v)
