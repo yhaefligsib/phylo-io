@@ -2823,12 +2823,17 @@ export default class Interface {
             .style('float','right')
             .on('change', function(){
                 that.viewer.model.settings.selected_collapse_uncolored = this.value;
+
+                /*
                 that.container_object.collapse_node_not_colored()
                 that.viewer.build_d3_cluster()
                 that.viewer.render(that.viewer.hierarchy)
                 that.viewer.maximise_zoom()
 
+                 */
+
             })
+
 
         selectcoloring_triangle.selectAll('option').data(options_triangle).enter()
             .append('option')
@@ -2875,14 +2880,20 @@ export default class Interface {
             .attr('id','selectcol_uncol' + this.container_object.uid )
             .attr('class','select')
             .style('float','right')
+
             .on('change', function(){
                 that.viewer.model.settings.selected_collapse_monocolored = this.value;
+                /*
                 that.container_object.collapse_node_same_color()
                 that.viewer.build_d3_cluster()
                 that.viewer.render(that.viewer.hierarchy)
                 that.viewer.maximise_zoom()
 
-            })
+                 */
+               })
+
+
+
 
         selectcoloring_mono.selectAll('option').data(_options_triangle).enter()
             .append('option')

@@ -631,7 +631,7 @@ export default class Container {
                         colors.add(leaf.renderedColor)
                     }
 
-                    console.log(colors, leaves)
+
 
                     that.monocolored_check_and_collapse(colors,child )
 
@@ -661,6 +661,12 @@ export default class Container {
                     if (is_leaf(child)){ return }
 
                     var children_list = child.children ? child.children : child._children
+
+                    // chekc if all children_list are leaf return
+                    if (children_list.length === 0 || children_list.every(is_leaf)) {
+                        return;
+                    }
+
                     child.colors = new Set()
 
                     for (const childrenListKey in children_list) {
@@ -669,6 +675,7 @@ export default class Container {
 
                         if (is_leaf(e)){continue}
 
+
                         if (e.colors){
                             child.colors = new Set([...child.colors, ...e.colors]);
 
@@ -676,7 +683,6 @@ export default class Container {
                         else{
                             child.colors.add(e.renderedColor)
                         }
-
 
 
                     }
@@ -712,6 +718,7 @@ export default class Container {
                     if (is_leaf(child)){ return }
 
                     var children_list = child.children ? child.children : child._children
+
                     child.colors = new Set()
 
                     for (const childrenListKey in children_list) {
