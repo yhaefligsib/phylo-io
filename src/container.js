@@ -3,7 +3,7 @@ import Model from './model.js'
 import Interface from "./interface";
 import * as bootstrap from "bootstrap";
 import * as d3 from "d3";
-const { build_table, save_file_as } = require('./utils.js')
+const { build_table, save_file_as, colorDifference } = require('./utils.js')
 var parser = require("biojs-io-newick");
 
 
@@ -56,8 +56,6 @@ export default class Container {
             }
         )
 
-
-        console.log(this.history_actions)
 
     }
 
@@ -433,108 +431,320 @@ export default class Container {
     collapse_node_not_colored(){
 
         var model =  this.models[this.current_model];
-        var viewer =  this.viewer;
+        var viewer = this.viewer;
+        var f_pre, f_post;
 
-            var f_pre = function(node, children){
+        var is_leaf = function(node) {
+            return !node.children && !node._children;
+        }
 
-                node.colored = false;
+        switch (model.settings.selected_collapse_uncolored) {
 
-                var acc_node = node.data.extended_informations[model.settings.style.color_accessor['node']]
-                var acc_leaf = node.data.extended_informations[model.settings.style.color_accessor['leaf']]
+            case 'Leaves':
 
-                if (acc_node !== undefined || acc_leaf !== undefined ){
-                    node.colored = true;
-                }
+                f_pre = function(node, children){
 
-            }
+                    node.colored = false;
+                    node.data.colored = false;
 
-            var f_post = function(child, node){
-
-            if (child.children || child._children){
-
-                var children_list = child.children ? child.children : child._children
-
-                var colored = false;
-                for (const childrenListKey in children_list) {
-
-                    var e = children_list[childrenListKey]
-
-                    if (e.colored){
-                        colored = true;
-                        break
+                    if (is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['leaf']] !== undefined  ){
+                        node.colored = true;
+                        node.data.colored = true;
                     }
 
                 }
 
+                f_post = function(child, node){
 
-                if (colored){
-                    model.collapse(child.data, false)
-                    child.colored = true;
-                }
-                else {
+                    // go through node.data.leaves and check if one colored break
+                    var leaves = child.data.leaves ? child.data.leaves : []
+                    for (const leafKey in leaves) {
+                        const leaf = leaves[leafKey];
+                        if (leaf.colored) {
+                            return
+                        }
+                    }
+
                     model.collapse(child.data, true)
-                    child.colored = false;
+                    viewer.apply_collapse_from_data_to_d3(child.data, child)
+                }
+
+                break;
+
+            case 'Nodes':
+
+                var f_pre = function(node, children){
+
+                    node.colored = false;
+                    node.data.colored = false;
+
+                    if ( !is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['node']] !== undefined  ){
+                        node.colored = true;
+                        node.data.colored = true;
+                    }
 
                 }
-                viewer.apply_collapse_from_data_to_d3(child.data, child)
-            }
 
+                var f_post = function(child, node){
 
-        }
+                    if (is_leaf(child)){ return }
 
-            this.models[this.current_model].traverse_hierarchy(this.viewer.hierarchy,f_pre, f_post)
+                    var children_list = child.children ? child.children : child._children
 
-    }
+                    for (const childrenListKey in children_list) {
 
-    collapse_node_same_color(){
+                        var e = children_list[childrenListKey]
 
-        var model =  this.models[this.current_model];
-        var viewer =  this.viewer;
-        var compared_model = viewer.get_compared_model()
+                        if (is_leaf(e)){continue}
 
-        var f_pre = function(node, children){
+                        if (e.colored) {
+                            return
+                        }
 
-            node.colored = false;
+                    }
 
-            var acc_node = node.data.extended_informations[model.settings.style.color_accessor['node']]
-            var acc_leaf = node.data.extended_informations[model.settings.style.color_accessor['leaf']]
-
-            if (acc_node !== undefined || acc_leaf !== undefined ){
-                node.colored = true;
-                node.renderedColor = viewer.color_edge(node, compared_model);
-                node.coloredValue = node.data.extended_informations[model.settings.style.color_accessor['node']];
-            }
-
-        }
-
-        var f_post = function(child, node){
-
-            if (child.children || child._children){
-
-                var children_list = child.children ? child.children : child._children
-
-                var renderedColors = Array.from(children_list).filter(e => e.coloredValue).map(e => e.coloredValue)
-
-                // check if difference between min and max value > 10% of the max value
-                var min = Math.min(...renderedColors)
-                var max = Math.max(...renderedColors)
-                var unicolored = (max - min) < 0.1 * max
-
-
-                if (unicolored){
                     model.collapse(child.data, true)
+                    viewer.apply_collapse_from_data_to_d3(child.data, child)
                 }
-                else {
-                    model.collapse(child.data, false)
+
+                break;
+            case 'Both':
+
+                var f_pre = function(node, children){
+
+                    node.colored = false;
+                    node.data.colored = false;
+
+                    if ( !is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['node']] !== undefined  ){
+                        node.colored = true;
+                        node.data.colored = true;
+                    }
+                    else if (is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['leaf']] !== undefined  ){
+                        node.colored = true;
+                        node.data.colored = true;
+                    }
 
                 }
-                viewer.apply_collapse_from_data_to_d3(child.data, child)
-            }
 
+                var f_post = function(child, node){
+
+                    if (is_leaf(child)){return}
+
+                    var children_list = child.children ? child.children : child._children
+
+                    for (const childrenListKey in children_list) {
+
+                        var e = children_list[childrenListKey]
+
+                        if (e.colored) {
+                            return
+                        }
+
+                    }
+
+                    model.collapse(child.data, true)
+                    viewer.apply_collapse_from_data_to_d3(child.data, child)
+                }
+
+                break;
+            default:
+                console.log('Unknown collapse option: ' + model.settings.selected_collapse_uncolored)
+                return;
 
         }
 
         this.models[this.current_model].traverse_hierarchy(this.viewer.hierarchy,f_pre, f_post)
+
+    }
+
+    monocolored_check_and_collapse(colors,child ){
+
+        var model = this.models[this.current_model]
+
+        switch (colors.size) {
+            case 0:
+                break; // no color, do nothing
+            case 1:
+                model.collapse(child.data, true)
+                this.viewer.apply_collapse_from_data_to_d3(child.data, child)
+                break;
+            default:
+                // compute the all pair of colorDifference in colors. If one above 10% return
+                var colorArray = Array.from(colors)
+                for (let i = 0; i < colorArray.length; i++) {
+                    for (let j = i + 1; j < colorArray.length; j++) {
+                        if (colorDifference(colorArray[i], colorArray[j]) > 0.05) {
+                            return; // multiple colors, do not collapse
+                        }
+                    }
+                }
+                model.collapse(child.data, true)
+                this.viewer.apply_collapse_from_data_to_d3(child.data, child)
+                break
+        }
+    }
+
+    collapse_node_same_color(){
+
+        var that = this
+
+        var model =  this.models[this.current_model];
+        var viewer =  this.viewer;
+        var compared_model = viewer.get_compared_model()
+        var f_pre, f_post;
+
+        var is_leaf = function(node) {
+            return !node.children && !node._children;
+        }
+
+
+        switch (model.settings.selected_collapse_monocolored) {
+
+            case 'Leaves':
+
+                f_pre = function(node, children){
+
+                    node.renderedColor = false;
+                    node.data.renderedColor = false;
+
+                    if (is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['leaf']] !== undefined  ){
+                        node.renderedColor = viewer.get_color_label(node)
+                        node.data.renderedColor = viewer.get_color_label(node)
+
+                    }
+
+                }
+
+                f_post = function(child, node){
+
+                    var colors = new Set()
+
+                    var leaves = child.data.leaves ? child.data.leaves : []
+
+                    for (const leafKey in leaves) {
+                        const leaf = leaves[leafKey];
+
+                        if (!leaf.renderedColor) {
+                            continue
+                        }
+
+                        colors.add(leaf.renderedColor)
+                    }
+
+                    console.log(colors, leaves)
+
+                    that.monocolored_check_and_collapse(colors,child )
+
+                    viewer.apply_collapse_from_data_to_d3(child.data, child)
+
+                }
+
+                break;
+
+            case 'Nodes':
+
+                f_pre = function(node, children){
+
+
+                    node.renderedColor = false;
+                    node.data.renderedColor = false;
+
+                    if ( !is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['node']] !== undefined  ){
+                        node.renderedColor = viewer.color_edge(node, compared_model);
+                        node.data.renderedColor = viewer.color_edge(node, compared_model);
+                    }
+
+                }
+
+                f_post = function(child, node){
+
+                    if (is_leaf(child)){ return }
+
+                    var children_list = child.children ? child.children : child._children
+                    child.colors = new Set()
+
+                    for (const childrenListKey in children_list) {
+
+                        var e = children_list[childrenListKey]
+
+                        if (is_leaf(e)){continue}
+
+                        if (e.colors){
+                            child.colors = new Set([...child.colors, ...e.colors]);
+
+                        }
+                        else{
+                            child.colors.add(e.renderedColor)
+                        }
+
+
+
+                    }
+
+                    that.monocolored_check_and_collapse(child.colors,child )
+
+
+                }
+
+                break;
+
+            case 'Both':
+
+                f_pre = function(node, children){
+
+
+                    node.renderedColor = false;
+                    node.data.renderedColor = false;
+
+                    if ( is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['node']] !== undefined  ){
+                        node.renderedColor = viewer.color_edge(node, compared_model);
+                        node.data.renderedColor = viewer.color_edge(node, compared_model);
+                    }
+                    else if (is_leaf(node) && node.data.extended_informations[model.settings.style.color_accessor['leaf']] !== undefined  ){
+                        node.renderedColor = viewer.get_color_label(node)
+                        node.data.renderedColor = viewer.get_color_label(node)
+                    }
+
+                }
+
+                f_post = function(child, node){
+
+                    if (is_leaf(child)){ return }
+
+                    var children_list = child.children ? child.children : child._children
+                    child.colors = new Set()
+
+                    for (const childrenListKey in children_list) {
+
+                        var e = children_list[childrenListKey]
+
+                        if (e.colors){
+                            child.colors = new Set([...child.colors, ...e.colors]);
+
+                        }
+                        else{
+                            child.colors.add(e.renderedColor)
+                        }
+
+
+
+                    }
+
+                    that.monocolored_check_and_collapse(child.colors,child )
+
+                }
+
+                break;
+            default:
+                console.log('Unknown collapse option: ' + model.settings.selected_collapse_uncolored)
+                return;
+
+        }
+
+        this.models[this.current_model].traverse_hierarchy(this.viewer.hierarchy,f_pre, f_post)
+
+
+
 
     }
 

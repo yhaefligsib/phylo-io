@@ -2529,7 +2529,7 @@ export default class Interface {
         //this.buttons_width = this.add_quartet_buttons(this.menu_general_p, "Tree width", "buton_horyzontal_size_", this.container_object.modify_node_size_percent, 'horizontal')
 
         this.add_quartet_buttons_single_line(this.menu_general_p, "Tree height", "buton_vertical_size_", this.container_object.modify_node_size_percent, 'vertical')
-        this.add_quartet_buttons_single_line(this.menu_general_p, "Line width", "buton_horyzontal_size_", this.container_object.modify_node_size_percent, 'horizontal')
+        this.add_quartet_buttons_single_line(this.menu_general_p, "Tree width", "buton_horyzontal_size_", this.container_object.modify_node_size_percent, 'horizontal')
 
 
         // ADD SELECT LEFT NODE LABEL
@@ -2774,10 +2774,124 @@ export default class Interface {
         }
         else {
             drop.style('float','right').append('label').text("No Data available");
-            this.menu_coloring_p.append('br')
+            container_div.append('br')
 
         }
 
+    }
+
+    add_color_collapsing(container_div) {
+
+        var that = this;
+
+        // Add button for collapse uncolored taxon
+        this.collapse_color_button_div = container_div.append('div')
+            .style('display', 'flex')
+            .style('margin-top', '0px')
+
+
+        this.collapse_color_button_div.append('button')
+            .attr('class', ' square_button')
+            .attr('id', 'collapse_color_search' + this.viewer.uid)
+            .on("click", d => {
+                this.container_object.collapse_node_not_colored()
+                this.viewer.build_d3_cluster()
+                this.viewer.render(this.viewer.hierarchy)
+                this.viewer.maximise_zoom()
+            })
+            .style('margin', '12px 0px')
+            .style('flex-grow', '1')
+            .append("text")
+            .text("Collapse uncolored subtrees ")
+
+        // Add select for select uncolored
+
+        var color_triangle_div = container_div.append('div')
+            .style('display','flex')
+            .style('float', 'right')
+
+
+        var options_triangle = ['Leaves', 'Nodes', 'Both'];
+
+        color_triangle_div.append('label')
+            .text("Using")
+            .style('margin-right', '8px')
+
+        var selectcoloring_triangle = color_triangle_div.append('select')
+            .attr('id','selectcol_uncol' + this.container_object.uid )
+            .attr('class','select')
+            .style('float','right')
+            .on('change', function(){
+                that.viewer.model.settings.selected_collapse_uncolored = this.value;
+                that.container_object.collapse_node_not_colored()
+                that.viewer.build_d3_cluster()
+                that.viewer.render(that.viewer.hierarchy)
+                that.viewer.maximise_zoom()
+
+            })
+
+        selectcoloring_triangle.selectAll('option').data(options_triangle).enter()
+            .append('option')
+            .attr('value', function (d) {
+                return d; })
+            .property("selected", (d) => { return d == this.viewer.model.settings.selected_collapse_uncolored })
+            .text(function (d) { return d; });
+
+        container_div.append('br')
+
+
+        // Add button for collapse unicolored taxon
+        this.collapse_unicolor_button_div = container_div.append('div')
+            .style('display', 'flex')
+            .style('margin-top', '0px')
+
+        this.collapse_unicolor_button_div.append('button')
+            .attr('class', ' square_button')
+            .attr('id', 'collapse_unicolor_search' + this.viewer.uid)
+            .on("click", d => {
+                this.container_object.collapse_node_same_color()
+                this.viewer.build_d3_cluster()
+                this.viewer.render(this.viewer.hierarchy)
+                this.viewer.maximise_zoom()
+            })
+            .style('margin', '12px 0px')
+            .style('flex-grow', '1')
+            .append("text")
+            .text("Collapse monocolored subtrees ")
+
+        // Add select for select unicolored
+
+        var color_unicolor_div = container_div.append('div')
+            .style('display','flex')
+            .style('float', 'right')
+
+        var _options_triangle = ['Leaves', 'Nodes', 'Both'];
+
+        color_unicolor_div.append('label')
+            .text("Using")
+            .style('margin-right', '8px')
+
+        var selectcoloring_mono = color_unicolor_div.append('select')
+            .attr('id','selectcol_uncol' + this.container_object.uid )
+            .attr('class','select')
+            .style('float','right')
+            .on('change', function(){
+                that.viewer.model.settings.selected_collapse_monocolored = this.value;
+                that.container_object.collapse_node_same_color()
+                that.viewer.build_d3_cluster()
+                that.viewer.render(that.viewer.hierarchy)
+                that.viewer.maximise_zoom()
+
+            })
+
+        selectcoloring_mono.selectAll('option').data(_options_triangle).enter()
+            .append('option')
+            .attr('value', function (d) {
+                return d; })
+            .property("selected", (d) => { return d == this.viewer.model.settings.selected_collapse_monocolored })
+            .text(function (d) { return d; });
+
+        container_div.append('br')
     }
 
     add_settings_coloring(){
@@ -2943,51 +3057,15 @@ export default class Interface {
 
         this.add_node_coloring_UI(this.menu_coloring_p)
 
+        this.menu_coloring_p.append('hr').style('margin', '20px 0px 4px 0px')
+
+        this.add_color_collapsing(this.menu_coloring_p)
 
         this.menu_coloring_p.append('hr').style('margin', '20px 0px 4px 0px')
 
-        // Add button for collapse uncolored taxon
-        this.collapse_color_button_div = this.menu_coloring_p.append('div')
-            .style('display', 'flex')
-            .style('margin-top', '0px')
-
-
-        this.collapse_color_button_div.append('button')
-            .attr('class', ' square_button')
-            .attr('id', 'collapse_color_search' + this.viewer.uid)
-            .on("click", d => {
-                this.container_object.collapse_node_not_colored()
-                this.viewer.build_d3_cluster()
-                this.viewer.render(this.viewer.hierarchy)
-                this.viewer.maximise_zoom()
-            })
-            .style('margin', '12px 0px')
-            .style('flex-grow', '1')
-            .append("text")
-            .text("Collapse uncolored subtrees ")
-
-        // Add button for collapse unicolored taxon
-        this.collapse_unicolor_button_div = this.menu_coloring_p.append('div')
-            .style('display', 'flex')
-            .style('margin-top', '0px')
-
-        this.collapse_unicolor_button_div.append('button')
-            .attr('class', ' square_button')
-            .attr('id', 'collapse_unicolor_search' + this.viewer.uid)
-            .on("click", d => {
-                this.container_object.collapse_node_same_color()
-                this.viewer.build_d3_cluster()
-                this.viewer.render(this.viewer.hierarchy)
-                this.viewer.maximise_zoom()
-            })
-            .style('margin', '12px 0px')
-            .style('flex-grow', '1')
-            .append("text")
-            .text("Collapse monocolored subtrees ")
-
 
         // add sync coloring
-        this.add_swicth_UI(this.menu_coloring_p, this.viewer.model.settings.sync_coloring,"Sync branches and leaves coloring",   this.viewer.toggle_sync_coloring.bind(this.viewer))
+        this.add_swicth_UI(this.menu_coloring_p, this.viewer.model.settings.sync_coloring,"Link branch & leaf coloring",   this.viewer.toggle_sync_coloring.bind(this.viewer))
 
         var color_triangle_div = this.menu_coloring_p.append('div')
             .style('display','block')

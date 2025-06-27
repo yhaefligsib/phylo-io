@@ -2457,6 +2457,48 @@ export default class Viewer {
             })
     }
 
+    get_color_label(d){
+
+        var acc = this.model.settings.style.color_accessor['leaf']
+        var type_acc = this.model.settings.extended_data_type[acc]
+
+
+        if (type_acc === 'color'){
+
+            var g = d.data.extended_informations[acc];
+
+            if (typeof g !== "undefined" ) {
+                return g
+            }
+
+
+        }
+
+        else if (acc !== null){
+
+            var v = d.data.extended_informations[acc];
+
+            if (typeof v !== "undefined" ) {
+
+                if (type_acc == 'cat'){
+
+                    var cs = this.container_object.api.get_color_scale(acc)
+                    return cs.get_color(v)
+
+                }
+
+                else{
+                    return this.model.settings.colorScale['leaf'](v)
+                }
+
+
+            }
+
+
+        }
+
+    }
+
     node_face_update(nodes){
 
         var on_screen_text_size = this.compute_node_font_size()
@@ -2529,44 +2571,7 @@ export default class Viewer {
 
                 if (!(d.children || d._children)){
 
-
-                    var acc = this.model.settings.style.color_accessor['leaf']
-                    var type_acc = this.model.settings.extended_data_type[acc]
-
-
-                    if (type_acc === 'color'){
-
-                        var g = d.data.extended_informations[acc];
-
-                        if (typeof g !== "undefined" ) {
-                            return g
-                        }
-
-
-                    }
-
-                    else if (acc !== null){
-
-                        var v = d.data.extended_informations[acc];
-
-                        if (typeof v !== "undefined" ) {
-
-                            if (type_acc == 'cat'){
-
-                                var cs = this.container_object.api.get_color_scale(acc)
-                                return cs.get_color(v)
-
-                            }
-
-                            else{
-                                return this.model.settings.colorScale['leaf'](v)
-                            }
-
-
-                        }
-
-
-                    }
+                    return this.get_color_label(d)
 
                 }
 

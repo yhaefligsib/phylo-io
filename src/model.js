@@ -81,6 +81,8 @@ export default class Model {
             },
             'sync_coloring': false,
             'selected_triangle_coloring': 'None',
+            'selected_collapse_uncolored': 'Leaves',
+            'selected_collapse_monocolored': 'Leaves',
             'colorScale': {'leaf' : null, 'node':null, 'circle': {}},
             'intercolor': {'leaf' : null, 'node': null, 'circle': {}}
         }

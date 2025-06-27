@@ -980,8 +980,25 @@ function check_if_color(query){
     }
 }
 
+function hexToRgb(hex) {
+    const bigint = parseInt(hex.slice(1), 16);
+    const r = (bigint >> 16) & 255;
+    const g = (bigint >> 8) & 255;
+    const b = bigint & 255;
+    return { r, g, b };
+}
 
+function colorDifference(hex1, hex2) {
+    const color1 = hexToRgb(hex1);
+    const color2 = hexToRgb(hex2);
+    const rDiff = color1.r - color2.r;
+    const gDiff = color1.g - color2.g;
+    const bDiff = color1.b - color2.b;
+    const distance = Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
+    const maxDistance = Math.sqrt(255 * 255 * 3);
+    return (distance / maxDistance) * 100;
+}
 
-module.exports =  {check_if_color, prepare_and_run_distance, build_table, reroot_hierarchy, screen_shot, parse_nhx, save_file_as, compute_RF_Euc, get_intersection_leaves, filter_leaves_hierarchy, remove_duplicated_and_unnamed_leaves_hierarchy};
+module.exports =  {colorDifference, check_if_color, prepare_and_run_distance, build_table, reroot_hierarchy, screen_shot, parse_nhx, save_file_as, compute_RF_Euc, get_intersection_leaves, filter_leaves_hierarchy, remove_duplicated_and_unnamed_leaves_hierarchy};
 
 
