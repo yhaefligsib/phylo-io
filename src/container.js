@@ -662,7 +662,7 @@ export default class Container {
 
                     var children_list = child.children ? child.children : child._children
 
-                    // chekc if all children_list are leaf return
+                    // check if all children_list are leaf return
                     if (children_list.length === 0 || children_list.every(is_leaf)) {
                         return;
                     }
@@ -680,8 +680,12 @@ export default class Container {
                             child.colors = new Set([...child.colors, ...e.colors]);
 
                         }
-                        else{
+                        else if (e.renderedColor){
                             child.colors.add(e.renderedColor)
+                        }
+                        else{
+                            child.colors = new Set()
+                            return
                         }
 
 
@@ -729,8 +733,12 @@ export default class Container {
                             child.colors = new Set([...child.colors, ...e.colors]);
 
                         }
-                        else{
+                        else if (e.renderedColor){
                             child.colors.add(e.renderedColor)
+                        }
+                        else{
+                            child.colors = new Set()
+                            return
                         }
 
 

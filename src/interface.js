@@ -48,6 +48,10 @@ export default class Interface {
         this.container_d3.selectAll(".empty_message").remove()
         this.container_d3.select('#histogram-legend').remove();
 
+        // remove old meta modal with document. function
+        document.querySelectorAll('#modal_meta_' + this.container_object.uid).forEach((el) => { el.remove() })
+        document.querySelectorAll('#exampleModal' + this.container_object.uid).forEach((el) => { el.remove() })
+
         this.container_d3.select("#menu-node").remove()
 
 /*
@@ -525,15 +529,12 @@ export default class Interface {
 
         // Add code for the toggle functionality
 
-
-
         const toggleElement = document.getElementById('toggle3' + this.container_object.uid);
         const contentElement = document.getElementById('collapse3' + this.container_object.uid);
         const caretElement = document.getElementById('caret3'  + this.container_object.uid);
         const expandTextElement = document.getElementById('expand3' + this.container_object.uid);
 
         toggleElement.addEventListener('click', () => {
-            console.log('Toggle clicked');
             const isHidden = contentElement.style.display === 'none';
             contentElement.style.display = isHidden ? 'block' : 'none';
             caretElement.className = isHidden ? 'bi-caret-up float-end' : 'bi-caret-down float-end';
@@ -579,13 +580,13 @@ export default class Interface {
 
                     })
 
-                } else {
+                }
+                else {
 
                     let moddy = container_object.models[container_object.current_model]
 
                     moddy.settings.use_meta_for_leaf = mapping.parameters.use_meta_for_leaf
                     moddy.settings.use_meta_for_node = mapping.parameters.use_meta_for_node
-
 
                     if (moddy.settings.use_meta_for_leaf) {
                         moddy.add_meta_leaves(mapping.meta, mapping.parameters.headers, container_object.api, mapping.parameters.reference)
@@ -872,7 +873,9 @@ export default class Interface {
                         `
                     }
 
-                    for (var key of Object.keys(numerisator)) {
+                    // clean potential old radiobox
+
+                      for (var key of Object.keys(numerisator)) {
 
                         var rad = get_el()
 
@@ -910,7 +913,6 @@ export default class Interface {
             }
 
         };
-
 
         document.getElementById("menu_help_add_tree").onclick = function () {
             $('#modal_help').modal('show');
@@ -1804,7 +1806,6 @@ export default class Interface {
         mod_html = mod_html.replaceAll('Step 3.1', 'Step 1')
         mod_html = mod_html.replaceAll('Step 3.2', 'Step 2')
 
-
         document.getElementById(this.container_object.div_id).insertAdjacentHTML('afterend',mod_html)
 
         // Add JS for modal corpus
@@ -2008,13 +2009,7 @@ export default class Interface {
 
                     }
 
-
-
-
-
-
                     that.viewer.interface = new Interface(that.viewer, that.viewer.container_object)
-
 
                     that.open_color_settings()
 
@@ -2064,8 +2059,8 @@ export default class Interface {
             var prefix = this.container_object.uid + 'mapping_header_radio'
         }
 
-
         var checkies = document.querySelectorAll(`[id^="${prefix}"]`);
+
 
 
         checkies.forEach(element => {

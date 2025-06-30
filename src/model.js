@@ -1178,6 +1178,8 @@ export default class Model {
         // headers: column_name -> type
 
         Object.keys(headers).forEach(item => {
+
+
             if (item != reference || item != 'Length' ) {
 
                 this.settings.extended_data_type[item] = headers[item]
