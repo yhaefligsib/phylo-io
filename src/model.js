@@ -794,10 +794,6 @@ export default class Model {
         parent.branch_length = old_distance /2
         parent.extended_informations['Length'] = old_distance/2
 
-
-
-        //                      ((C,D)1,(A,(B,X)3)2,E); to test
-
         // Until we reach the old root reverse child/parent order
         var child = root
         var stack = []
@@ -812,28 +808,25 @@ export default class Model {
             parent.values_before_reverse = {}
             parent.branch_length_before_reverse = parent.branch_length
 
-            for (var key of this.settings.edge_related_data) {
-
-                var value = key;
+            for (var value of this.settings.edge_related_data) {
 
                 parent.values_before_reverse[value] = parent.extended_informations[value]
 
+                if (value=== 'Length'){
+                    parent.branch_length = child.branch_length_before_reverse || child.branch_length;
+                    parent.extended_informations['Length'] = parent.branch_length;
 
-                    if (value=== 'Length'){
-                        parent.branch_length = child.branch_length_before_reverse || child.branch_length;
-                        parent.extended_informations['Length'] = parent.branch_length;
-
+                }
+                else{
+                    if ( child.values_before_reverse && value in child.values_before_reverse){
+                        parent.extended_informations[value] = child.values_before_reverse[value]
                     }
                     else{
-                        if ( child.values_before_reverse && value in child.values_before_reverse){
-                            parent.extended_informations[value] = child.values_before_reverse[value]
-                        }
-                        else{
-                            parent.extended_informations[value] = child.extended_informations[value]
-                            child.extended_informations[value] = null
-                        }
-
+                        parent.extended_informations[value] = child.extended_informations[value]
+                        child.extended_informations[value] = null
                     }
+
+                }
 
 
 
@@ -890,7 +883,6 @@ export default class Model {
 
             for (var childy of root.children) {
 
-                console.log(childy, childy.extended_informations[key], root.extended_informations[key] )
                 childy.extended_informations[key] =  root.extended_informations[key]
 
             }
@@ -909,6 +901,8 @@ export default class Model {
 
         this.traverse(root, function(n,c){
             n.leaves = this.get_leaves(n)
+            n.values_before_reverse = {}
+            n.branch_length_before_reverse = undefined
         })
 
 
