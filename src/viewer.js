@@ -548,6 +548,7 @@ export default class Viewer {
                     var acc = this.model.settings.style.color_accessor['circle']
                     var type_acc = this.model.settings.extended_data_type[acc]
                     var g = d.data.extended_informations[acc]
+                    if (typeof(g) === 'undefined' || !g)  return "rgba(140,140,140,0.6)";
 
                     if (type_acc == 'cat'){
 
