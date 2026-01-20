@@ -557,7 +557,7 @@ export default class Container {
 
     }
 
-    monocolored_check_and_collapse(colors,child ){
+    monocolored_check_and_collapse(colors, child, data_type){
 
         var model = this.models[this.current_model]
 
@@ -569,8 +569,11 @@ export default class Container {
                 this.viewer.apply_collapse_from_data_to_d3(child.data, child)
                 break;
             default:
-                // compute the all pair of colorDifference in colors. If one above 10% return
-                var colorArray = Array.from(colors)
+                if (data_type !== "num") {
+                    break;  // more than one color, categorial or explicit color, do not colapse
+                }
+                // compute the all pairs of colorDifference in colors. If one above 5% do not collapse
+                let colorArray = Array.from(colors)
                 for (let i = 0; i < colorArray.length; i++) {
                     for (let j = i + 1; j < colorArray.length; j++) {
                         if (colorDifference(colorArray[i], colorArray[j]) > 0.05) {
@@ -627,13 +630,10 @@ export default class Container {
                         if (!leaf.renderedColor) {
                             continue
                         }
-
                         colors.add(leaf.renderedColor)
                     }
-
-
-
-                    that.monocolored_check_and_collapse(colors,child )
+                    const data_type = model.settings.extended_data_type[model.settings.style.color_accessor['leaf']];
+                    that.monocolored_check_and_collapse(colors, child, data_type)
 
                     viewer.apply_collapse_from_data_to_d3(child.data, child)
 
@@ -690,9 +690,8 @@ export default class Container {
 
 
                     }
-
-                    that.monocolored_check_and_collapse(child.colors,child )
-
+                    const data_type = model.settings.extended_informations[model.settings.style.color_accessor['node']];
+                    that.monocolored_check_and_collapse(child.colors, child, data_type);
 
                 }
 
@@ -740,12 +739,11 @@ export default class Container {
                             child.colors = new Set()
                             return
                         }
-
-
-
                     }
-
-                    that.monocolored_check_and_collapse(child.colors,child )
+                    const data_type_node = model.settings.extended_informations[model.settings.style.color_accessor['node']];
+                    const data_type_leaf = model.settings.extended_informations[model.settings.style.color_accessor['leaf']];
+                    const data_type = (data_type_node === data_type_leaf) ? data_type_node : 'cat'
+                    that.monocolored_check_and_collapse(child.colors, child, data_type);
 
                 }
 

@@ -980,7 +980,14 @@ function check_if_color(query){
     }
 }
 
-function hexToRgb(hex) {
+function hexToRgb(hex){
+    if (typeof hex === 'object' && hex.r !== undefined) {
+        return hex;
+    }
+    if (typeof hex === 'string' && hex.startsWith('rgb')) {
+        const values = hex.match(/\d+/g).map(Number);
+        return { r: values[0], g: values[1], b: values[2] };
+    }
     const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 16) & 255;
     const g = (bigint >> 8) & 255;
@@ -996,7 +1003,7 @@ function colorDifference(hex1, hex2) {
     const bDiff = color1.b - color2.b;
     const distance = Math.sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff);
     const maxDistance = Math.sqrt(255 * 255 * 3);
-    return (distance / maxDistance) * 100;
+    return (distance / maxDistance);
 }
 
 module.exports =  {colorDifference, check_if_color, prepare_and_run_distance, build_table, reroot_hierarchy, screen_shot, parse_nhx, save_file_as, compute_RF_Euc, get_intersection_leaves, filter_leaves_hierarchy, remove_duplicated_and_unnamed_leaves_hierarchy};
