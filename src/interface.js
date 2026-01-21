@@ -3115,7 +3115,7 @@ export default class Interface {
 
 
         if (!(acc in this.viewer.model.settings.style.number_domain)) {
-            this.viewer.model.settings.style.number_domain[acc] = 3
+            this.viewer.model.settings.style.number_domain[acc] = 2
         }
 
         this.create_color_scheme_picker(type)
@@ -3528,9 +3528,8 @@ export default class Interface {
         var number = this.viewer.model.settings.style.number_domain[acc];
 
         if (!(acc in this.viewer.model.settings.style.color_domain)) {
-            this.viewer.model.settings.style.color_domain[acc] = this.viewer.model.settings.style.color_domain_default
-
-            var default_color = this.viewer.model.settings.style.color_domain_default
+            //this.viewer.model.settings.style.color_domain[acc] = this.viewer.model.settings.style.color_domain_default
+            var default_color = this.viewer.model.settings.style.color_domain_default[acc] || this.viewer.model.settings.style.color_domain_default["DEFAULT"];
 
             var w = Math.round(135/number);
             var color = []
