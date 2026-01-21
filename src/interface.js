@@ -3217,6 +3217,8 @@ export default class Interface {
                         this.viewer.model.set_color_scale(type, this.api);
                     }
                     this.viewer.render(this.viewer.hierarchy)
+                    this.remove_color_legend(type)
+                    this.add_color_legend(type)
 
                 })
 
