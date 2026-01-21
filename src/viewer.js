@@ -782,7 +782,8 @@ export default class Viewer {
 
     color_triangle(node_){
 
-        var mean = array => array.reduce((a, b) => a + b) / array.length;
+        const mean = array => array.reduce((a, b) => a + b) / array.length;
+        const default_color = '#666'
 
         function mostFrequentElement(array) {
             var frequencyMap = {};
@@ -825,6 +826,7 @@ export default class Viewer {
                     })
 
                     metrics = removeFalsyValues(metrics)
+                    if (metrics.length === 0) {return default_color;}
 
                     var type_l = this.model.settings.extended_data_type[acc_l]
 
@@ -855,6 +857,7 @@ export default class Viewer {
                     })
 
                     metrics = removeFalsyValues(metrics)
+                    if (metrics.length === 0) {return default_color;}
 
                     var type_l = this.model.settings.extended_data_type[acc_l]
 
@@ -872,7 +875,7 @@ export default class Viewer {
                 break
         }
 
-        return '#666'
+        return default_color;
     }
 
     render_edges(source, duration){
