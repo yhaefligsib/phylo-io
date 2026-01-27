@@ -887,7 +887,7 @@ export default class Interface {
                         rad = rad.replace('RADIO_3', that.container_object.uid + 'mapping_header_radiotree_adder_3' + '__' + key)
 
 
-                        if (numerisator[key] == 'num') {
+                        if (numerisator[key] === 'num') {
                             rad = rad.replace('ATTR_NUM', 'checked')
                             rad = rad.replace('ATTR_CAT', '')
                             rad = rad.replace('ATTR_COLOR', '')
@@ -1918,12 +1918,12 @@ export default class Interface {
                         rad = rad.replace('RADIO_3',  that.container_object.uid + 'mapping_header_radio3'  + '__' + key )
 
 
-                        if (numerisator[key] == 'num') {
+                        if (numerisator[key] === 'num') {
                             rad = rad.replace('ATTR_NUM', 'checked')
                             rad = rad.replace('ATTR_CAT', '')
                             rad = rad.replace('ATTR_COLOR', '')
                         }
-                        if (check_if_color(numerisator[key])) {
+                        if (check_if_color(key)) {
                             rad = rad.replace('ATTR_NUM', '')
                             rad = rad.replace('ATTR_CAT', '')
                             rad = rad.replace('ATTR_COLOR', 'checked')
