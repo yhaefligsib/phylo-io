@@ -60,7 +60,7 @@ export default class Model {
                 'color_domain_default': {
                     "Topology": ["#a50026", "#f46d43", "#ffffbf", "#74add1", "#313695"],
                     "Length": ['#253494', '#2C7FB8', '#41B6C4', '#C7E9B4', '#FFFFCC'],
-                    "DEFAULT": ['#C60101', '#FB6A4A', '#F7F7F7', '#6BAED6', '#253494']
+                    "DEFAULT": ["#FF0000", "#FFBFBF", "#F5F5F5", "#BFBFFF", "#0000FF"]
                 }
 
         },
